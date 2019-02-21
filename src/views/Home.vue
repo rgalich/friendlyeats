@@ -1,19 +1,61 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-    <a-button type="primary">Primary</a-button>
+    <a-table :columns="columns" :dataSource="data" bordered>
+      <template slot="name" slot-scope="text">
+        <a href="javascript:;">{{text}}</a>
+      </template>
+    </a-table>
+    <a-button @click="addUser" type="primary">Primary</a-button>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import HelloWorld from '@/components/HelloWorld.vue';
+import Firebase from '../firebaseConfig'
 
 @Component({
   components: {
     HelloWorld,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+
+  columns = [{
+    title: 'Prénom',
+    dataIndex: 'first'
+  }, {
+    title: 'Cash Assets',
+    dataIndex: 'last',
+  }, {
+    title: 'born',
+    dataIndex: 'born',
+  }];
+
+  data: any[] = [];
+
+  addUser() {
+    console.log('ee')
+    Firebase.db.collection('users').add({
+      first: 'Rémi',
+      last: 'GALICHON',
+      born: 1815,
+    })
+    .then((docRef) => {
+      console.log('Document written with ID: ', docRef.id);
+    })
+    .catch((error) => {
+      console.error('Error adding document: ', error);
+    });
+  }
+
+  mounted() {
+    Firebase.db.collection("users").onSnapshot((querySnapshot) => {
+        this.data = [];
+        querySnapshot.forEach((doc) => {
+            this.data.push(doc.data());
+        });
+    });
+  }
+}
 </script>
