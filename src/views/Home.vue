@@ -35,26 +35,36 @@ export default class Home extends Vue {
   data: any[] = [];
 
   addUser() {
-    console.log('ee')
-    Firebase.db.collection('users').add({
-      first: 'Rémi',
-      last: 'GALICHON',
-      born: 1815,
+    let addressId;
+
+    Firebase.db.collection('address').add({
+      city: 'Roanne',
+      posteCode: 42120,
     })
     .then((docRef) => {
-      console.log('Document written with ID: ', docRef.id);
-    })
-    .catch((error) => {
-      console.error('Error adding document: ', error);
+      addressId = docRef.id;
+      Firebase.db.collection('user').add({
+        first: 'Rémi',
+        last: 'GALICHON',
+        born: 1815,
+        addressId
+      })
+      .then((docRef) => {
+        console.log('Document written with ID: ', docRef.id);
+      });
     });
   }
 
   mounted() {
-    Firebase.db.collection("users").onSnapshot((querySnapshot) => {
+    Firebase.db.collection('user').onSnapshot((querySnapshot) => {
         this.data = [];
         querySnapshot.forEach((doc) => {
             this.data.push(doc.data());
+            Firebase.db.collection('address').doc(doc.data().addressId).get().then((doc) => {
+              console.log(doc);
+            });
         });
+        console.log(this.data);
     });
   }
 }
