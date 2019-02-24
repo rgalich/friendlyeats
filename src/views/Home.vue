@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <a-table :columns="columns" :dataSource="userList" bordered>
+    <a-table :columns="columns" :dataSource="userList" :rowKey="record => record.id" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
@@ -11,9 +11,11 @@
       v-model="visible"
       @ok="handleOk"
     >
-      <p>Some contents...</p>
-      <p>Some contents...</p>
-      <p>Some contents...</p>
+      <a-form>
+        <a-form-item label="Prénom">
+          
+        </a-form-item>
+      </a-form>
     </a-modal>
   </div>
 </template>

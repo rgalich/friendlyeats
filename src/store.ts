@@ -20,15 +20,14 @@ export default new Vuex.Store({
       Firebase.db.collection('user').onSnapshot((querySnapshot) => {
         const userList: UserModel[] = [];
         querySnapshot.forEach((doc) => {
-          const user: UserModel = plainToClass(UserModel, doc.data());
-          user.id = doc.id;
+          const user: UserModel = UserModel.toClass(doc);
           userList.push(user);
         });
         commit('UPDATE_USER_LIST', userList);
       });
     },
     addUser({ commit }, user: UserModel) {
-      Firebase.db.collection('user').add(classToPlain(user));
+      Firebase.db.collection('user').add(UserModel.toPlan(user));
     },
   },
   getters: {
