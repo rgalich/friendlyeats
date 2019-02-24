@@ -3,9 +3,12 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 
-import { Button, Table } from 'ant-design-vue';
+import 'reflect-metadata';
+
+import { Button, Table, Modal } from 'ant-design-vue';
 Vue.component(Button.name, Button);
 Vue.component(Table.name, Table);
+Vue.component(Modal.name, Modal);
 
 Vue.config.productionTip = false;
 

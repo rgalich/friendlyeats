@@ -1,18 +1,29 @@
 <template>
   <div class="home">
-    <a-table :columns="columns" :dataSource="data" bordered>
+    <a-table :columns="columns" :dataSource="userList" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
     </a-table>
-    <a-button @click="addUser" type="primary">Primary</a-button>
+    <a-button type="primary" @click="showModal">Open Modal</a-button>
+    <a-modal
+      title="Créer un utilisateur"
+      v-model="visible"
+      @ok="handleOk"
+    >
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </a-modal>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue';
-import Firebase from '../firebaseConfig'
+import Firebase from '../firebaseConfig';
+import { Getter, Action } from 'vuex-class';
+import { UserModel } from '@/models/userModel';
 
 @Component({
   components: {
@@ -20,52 +31,40 @@ import Firebase from '../firebaseConfig'
   },
 })
 export default class Home extends Vue {
+  @Getter private userList!: UserModel[];
 
-  columns = [{
+  @Action private getUserList!: any;
+
+  @Action private addUser!: any;
+
+  private visible = false;
+
+  private user: UserModel = new UserModel();
+
+  private columns = [{
     title: 'Prénom',
-    dataIndex: 'first'
+    dataIndex: 'firstName',
   }, {
-    title: 'Cash Assets',
-    dataIndex: 'last',
+    title: 'Nom',
+    dataIndex: 'lastName',
   }, {
-    title: 'born',
-    dataIndex: 'born',
+    title: 'Mail',
+    dataIndex: 'mail',
   }];
 
-  data: any[] = [];
-
-  addUser() {
-    let addressId;
-
-    Firebase.db.collection('address').add({
-      city: 'Roanne',
-      posteCode: 42120,
-    })
-    .then((docRef) => {
-      addressId = docRef.id;
-      Firebase.db.collection('user').add({
-        first: 'Rémi',
-        last: 'GALICHON',
-        born: 1815,
-        addressId
-      })
-      .then((docRef) => {
-        console.log('Document written with ID: ', docRef.id);
-      });
-    });
+  private created() {
+    this.getUserList();
   }
 
-  mounted() {
-    Firebase.db.collection('user').onSnapshot((querySnapshot) => {
-        this.data = [];
-        querySnapshot.forEach((doc) => {
-            this.data.push(doc.data());
-            Firebase.db.collection('address').doc(doc.data().addressId).get().then((doc) => {
-              console.log(doc);
-            });
-        });
-        console.log(this.data);
-    });
+  private showModal() {
+    this.visible = true;
+  }
+
+  private handleOk() {
+    this.user = { id: 'aa', firstName: 'aaa', lastName: 'bb', mail: 'rr@rr.rr' };
+    this.addUser(this.user);
+    this.user = new UserModel();
+    this.visible = false;
   }
 }
 </script>
