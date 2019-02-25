@@ -10,7 +10,7 @@ Vue.component(Button.name, Button);
 Vue.component(Table.name, Table);
 Vue.component(Modal.name, Modal);
 Vue.component(Form.name, Form);
-Vue.component(Form.Item.name, Form);
+Vue.component(Form.Item.name, Form.Item);
 Vue.component(Input.name, Input);
 
 Vue.config.productionTip = false;
