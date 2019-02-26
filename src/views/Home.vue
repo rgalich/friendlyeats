@@ -22,16 +22,11 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue';
 import Firebase from '../firebaseConfig';
 import { Getter, Action } from 'vuex-class';
 import { UserModel } from '@/models/userModel';
 
-@Component({
-  components: {
-    HelloWorld,
-  },
-})
+@Component
 export default class Home extends Vue {
   @Getter private userList!: UserModel[];
 
