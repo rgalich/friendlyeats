@@ -20,55 +20,55 @@ export default class About extends Vue {
             id: 1,
             positionX: 'left',
             positionY: 'top',
-            value: null,
+            value: '',
         },
         {
             id: 2,
             positionX: null,
             positionY: 'top',
-            value: null,
+            value: '',
         },
         {
             id: 3,
             positionX: 'right',
             positionY: 'top',
-            value: null,
+            value: '',
         },
         {
             id: 4,
             positionX: 'left',
             positionY: null,
-            value: null,
+            value: '',
         },
         {
             id: 5,
             positionX: null,
             positionY: null,
-            value: null,
+            value: '',
         },
         {
             id: 6,
             positionX: 'right',
             positionY: null,
-            value: null,
+            value: '',
         },
         {
             id: 7,
             positionX: 'left',
             positionY: 'button',
-            value: null,
+            value: '',
         },
         {
             id: 8,
             positionX: null,
             positionY: 'buttom',
-            value: null,
+            value: '',
         },
         {
             id: 9,
             positionX: 'right',
             positionY: 'button',
-            value: null,
+            value: '',
         },
     ];
 
@@ -92,12 +92,19 @@ export default class About extends Vue {
             item.value = this.turn;
             this.checkWin();
             this.turn = this.turn === 'o' ? 'x' : 'o';
+            this.autoPlay();
         }
+    }
+
+    private autoPlay() {
+        const free = this.ticTacToc.filter(e => !e.value);
+        free[Math.floor(Math.random() * free.length)].value = this.turn;
+        this.turn = this.turn === 'o' ? 'x' : 'o';
     }
 
     private checkWin() {
         const rowAlign = this.ticTacToc.filter((e) => 
-            ((e.id >= 1 && e.id <= 3) || (e.id >= 4 && e.id <= 6) || (e.id >= 7 && e.id <= 9))
+            e.id >= 1 && e.id <= 3
             && e.value === this.turn).length;
         console.log(rowAlign);
         if (rowAlign === 3) {
