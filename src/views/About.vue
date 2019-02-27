@@ -1,20 +1,24 @@
 <template>
   <div class="game">
     <div class="board blink">
-        <div v-for="i in ticTacToc" :key="i.id" :class="['square', i.positionX, i.positionY]" @click="play(i)">
+        <div v-for="i in ticTacToc" :key="i.id" :class="['square', i.positionY, i.positionX]" @click="play(i)">
             <transition name="slide-fade">
                 <div v-if="i.value" :class="i.value"></div>
             </transition>
         </div>
-        {{ checkWin }}
-        {{ turnNumber }}
+        <div v-if="isWinning">
+            Le joueur {{ turn }} à gagné en {{ turnNumber }} tours.
+        </div>
+        <div v-if="!isWinning && turnNumber === turnMax">
+            Match nul
+        </div>
     </div>
     <div class="restart" style="display: block;"></div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 @Component
 export default class About extends Vue {
@@ -58,19 +62,19 @@ export default class About extends Vue {
         {
             id: 7,
             positionX: 'left',
-            positionY: 'button',
+            positionY: 'bottom',
             value: '',
         },
         {
             id: 8,
             positionX: null,
-            positionY: 'buttom',
+            positionY: 'bottom',
             value: '',
         },
         {
             id: 9,
             positionX: 'right',
-            positionY: 'button',
+            positionY: 'bottom',
             value: '',
         },
     ];
@@ -90,47 +94,49 @@ export default class About extends Vue {
 
     private turnNumber = 0;
 
-    private isFinish = false;
+    private turnMax = 9;
+
+    private isWinning = false;
+
+    @Watch('turnNumber')
+    private onTurnNumberChanger() {
+        let isWinning = false;
+        this.win.forEach((e) => {
+            const winWithValue = this.ticTacToc.filter((f) => e.includes(f.id))
+                .map((f) => f.value)
+                .filter((v, i, a) => a.indexOf(v) === i);
+
+            if (winWithValue.length === 1 && !winWithValue.includes('')) {
+                isWinning = true;
+            }
+        });
+
+        this.isWinning = isWinning;
+
+        if (this.isWinning) { return; }
+
+        this.turn = this.turn === 'o' ? 'x' : 'o';
+    }
 
     private play(item: any) {
-        if (item.value || this.checkWin) { return; }
+        if (item.value || this.isWinning || this.turn !== 'o') { return; }
 
         item.value = this.turn;
 
-        if (this.checkWin) { return; }
+        this.turnNumber++;
 
-        this.toggleTurn();
+        if (this.isWinning && this.turnNumber === this.turnMax) { return; }
+
         setTimeout(() => { this.autoPlay(); }, 2000);
     }
 
     private autoPlay() {
-        if (this.checkWin) { return; }
+        if (this.isWinning) { return; }
 
         const emptyBoxList = this.ticTacToc.filter((e) => !e.value);
         emptyBoxList[Math.floor(Math.random() * emptyBoxList.length)].value = this.turn;
 
-        if (this.checkWin) { return; }
-
-        this.toggleTurn();
-    }
-
-    get checkWin() {
-        this.win.forEach((e) => {
-            const toto = this.ticTacToc.filter(
-                (f) => e.includes(f.id))
-                .map((f) => f.value)
-                .filter((v, i, a) => a.indexOf(v) === i);
-            if (toto.length === 1 && !toto.includes('')) {
-                return true;
-            }
-        });
-
-        return false;
-    }
-
-    private toggleTurn() {
-        this.turn = this.turn === 'o' ? 'x' : 'o';
-        this.turnNumber += 1;
+        this.turnNumber++;
     }
 }
 </script>
@@ -153,7 +159,6 @@ export default class About extends Vue {
     }
 
     .square.left {
-        clear: both;
         border-right-style: solid;
     }
 
