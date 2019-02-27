@@ -99,7 +99,7 @@ export default class About extends Vue {
     private isWinning = false;
 
     @Watch('turnNumber')
-    private onTurnNumberChanger() {
+    private onTurnNumberChanged() {
         let isWinning = false;
         this.win.forEach((e) => {
             const winWithValue = this.ticTacToc.filter((f) => e.includes(f.id))
