@@ -1,20 +1,28 @@
 <template>
-  <div class="game">
-    <div class="board blink">
-        <div v-for="i in ticTacToc" :key="i.id" :class="['square', i.positionY, i.positionX]" @click="play(i)">
-            <transition name="slide-fade">
-                <div v-if="i.value" :class="i.value"></div>
-            </transition>
-        </div>
-        <div v-if="isWinning">
-            Le joueur {{ turn }} à gagné en {{ turnNumber }} tours.
-        </div>
-        <div v-if="!isWinning && turnNumber === turnMax">
-            Match nul
+<div>
+    <div class="game">
+        <div class="board blink">
+            <div v-for="i in ticTacToc" :key="i.id" :class="['square', i.positionY, i.positionX]" @click="play(i)">
+                <transition name="slide-fade">
+                    <div v-if="i.value" :class="i.value"></div>
+                </transition>
+            </div>
         </div>
     </div>
-    <div class="restart" style="display: block;"></div>
-  </div>
+    <div class="scores p1">
+        <p class="player1"><span class="p1">Joueur</span>(O)<span class="score">{{ winO }}</span></p>
+        <p class="ties">Egalité<span class="score">{{ draw }}</span></p>
+        <p class="player2"><span class="p1">Ordinateur</span>(X)<span class="score">{{ winX }}</span></p>
+        <div class="swap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <g fill="#fff">
+                    <path class="p1" d="M49.947,90.991c0.693,0,1.41,0.02,2.104,0c13.547-0.201,26.439-1.723,28.775-3.945 c0.537-4.928,1.195-7.311-20.65-17.644c-3.107-1.742-1.465-8.492-1.465-8.492c6.578-4.969,11.096-16.463,11.096-25.676 c0-15.921-7.18-23.453-17.756-24.234h-2.104c-10.557,0.781-17.734,8.312-17.734,24.234c0,9.213,4.496,20.707,11.078,25.676 c0,0,1.641,6.75-1.449,8.492C19.979,79.735,20.635,82.118,21.176,87.046C23.51,89.269,36.402,90.79,49.947,90.991z"></path>
+                </g>
+            </svg>
+            <p class="p1">J1</p>
+        </div>
+    </div>
+</div>
 </template>
 
 <script lang="ts">
@@ -90,6 +98,12 @@ export default class About extends Vue {
         [3, 5, 7],
     ];
 
+    private winX = 0;
+
+    private winO = 0;
+
+    private draw = 0;
+
     private turn = 'o';
 
     private turnNumber = 0;
@@ -99,23 +113,50 @@ export default class About extends Vue {
     private isWinning = false;
 
     @Watch('turnNumber')
-    private onTurnNumberChanged() {
-        let isWinning = false;
-        this.win.forEach((e) => {
-            const winWithValue = this.ticTacToc.filter((f) => e.includes(f.id))
-                .map((f) => f.value)
-                .filter((v, i, a) => a.indexOf(v) === i);
+    private onTurnNumberChanged(newVal: number) {
+        if (newVal) {
+            let isWinning = false;
+            this.win.forEach((e) => {
+                const winWithValue = this.ticTacToc.filter((f) => e.includes(f.id))
+                    .map((f) => f.value)
+                    .filter((v, i, a) => a.indexOf(v) === i);
 
-            if (winWithValue.length === 1 && !winWithValue.includes('')) {
-                isWinning = true;
+                if (winWithValue.length === 1 && !winWithValue.includes('')) {
+                    isWinning = true;
+                }
+            });
+
+            this.isWinning = isWinning;
+
+            if (this.isWinning) {
+                switch (this.turn) {
+                    case 'o': {
+                        this.winO++;
+                        break;
+                    }
+                    case 'x': {
+                        this.winX++;
+                        break;
+                    }
+                }
+            } else if (this.turnNumber === this.turnMax) {
+                this.draw++;
             }
-        });
 
-        this.isWinning = isWinning;
+            if (this.isWinning || this.turnNumber === this.turnMax) {
+                setTimeout(() => {
+                    this.ticTacToc.map((e) => {
+                        e.value = '';
+                    });
+                    this.turn = 'o';
+                    this.isWinning = false;
+                    this.turnNumber = 0;
+                }, 1000);
+                return;
+            }
 
-        if (this.isWinning) { return; }
-
-        this.turn = this.turn === 'o' ? 'x' : 'o';
+            this.turn = this.turn === 'o' ? 'x' : 'o';
+        }
     }
 
     private play(item: any) {
@@ -127,13 +168,16 @@ export default class About extends Vue {
 
         if (this.isWinning && this.turnNumber === this.turnMax) { return; }
 
-        setTimeout(() => { this.autoPlay(); }, 2000);
+        setTimeout(() => { this.autoPlay(); }, 1000);
     }
 
     private autoPlay() {
         if (this.isWinning) { return; }
 
         const emptyBoxList = this.ticTacToc.filter((e) => !e.value);
+
+        if (!emptyBoxList.length) { return; }
+
         emptyBoxList[Math.floor(Math.random() * emptyBoxList.length)].value = this.turn;
 
         this.turnNumber++;
@@ -146,7 +190,6 @@ export default class About extends Vue {
         position: absolute;
         top: 50%;
         left: 50%;
-        background-color: #000;
         width: 450px;
         height: 450px;
         margin-left: -225px;
@@ -220,6 +263,88 @@ export default class About extends Vue {
         content: "";
         background-color: #fff;
         border-radius: 4px;
+    }
+
+    .scores {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 600px;
+        margin-left: -300px;
+        margin-top: 280px;
+        text-align: center;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .scores {
+        width: 450px;
+        margin-left: -225px;
+        margin-top: 210px;
+    }
+
+    p {
+        display: block;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+    }
+
+    .player1, .player2 {
+        width: 230px;
+        white-space: nowrap;
+    }
+
+    .player1, .player2 {
+        width: 180px;
+    }
+
+    .scores p {
+        font: 20px raleway,sans-serif;
+        font-weight: 400;
+        text-transform: uppercase;
+        line-height: 1;
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+    }
+
+    .scores p {
+        font-size: 17px;
+        letter-spacing: 0;
+    }
+
+    .scores .swap {
+        display: inline-block;
+        vertical-align: top;
+        width: 30px;
+        height: 30px;
+        margin: -5px -30px 0 0;
+        opacity: .5;
+        cursor: pointer;
+        -webkit-transition: opacity .1s linear;
+        -moz-transition: opacity .1s linear;
+        transition: opacity .1s linear;
+    }
+
+    .scores .score {
+        font-size: 50px;
+        display: block;
+        height: 60px;
+        padding: 10px 0 0;
+        will-change: transform;
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+    }
+
+    .scores .score {
+        font-size: 40px;
+        padding-top: 8px;
+        height: 50px;
     }
 
     .slide-fade-enter-active {
