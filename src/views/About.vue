@@ -12,14 +12,15 @@
     <div class="scores p1">
         <p class="player1"><span class="p1">Joueur</span>(O)<span class="score">{{ winO }}</span></p>
         <p class="ties">Egalité<span class="score">{{ draw }}</span></p>
-        <p class="player2"><span class="p1">Ordinateur</span>(X)<span class="score">{{ winX }}</span></p>
-        <div class="swap">
+        <p class="player2"><span class="p2">{{ isMultiPlayer ? 'Joueur' : 'Ordinateur' }}</span>(X)<span class="score">{{ winX }}</span></p>
+        <div class="swap" @click="isMultiPlayer = !isMultiPlayer">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                 <g fill="#fff">
                     <path class="p1" d="M49.947,90.991c0.693,0,1.41,0.02,2.104,0c13.547-0.201,26.439-1.723,28.775-3.945 c0.537-4.928,1.195-7.311-20.65-17.644c-3.107-1.742-1.465-8.492-1.465-8.492c6.578-4.969,11.096-16.463,11.096-25.676 c0-15.921-7.18-23.453-17.756-24.234h-2.104c-10.557,0.781-17.734,8.312-17.734,24.234c0,9.213,4.496,20.707,11.078,25.676 c0,0,1.641,6.75-1.449,8.492C19.979,79.735,20.635,82.118,21.176,87.046C23.51,89.269,36.402,90.79,49.947,90.991z"></path>
                 </g>
             </svg>
-            <p class="p1">J1</p>
+            <p v-if="!isMultiPlayer" class="p1">J1</p>
+            <p v-else class="p2">J2</p>
         </div>
     </div>
 </div>
@@ -112,6 +113,8 @@ export default class About extends Vue {
 
     private isWinning = false;
 
+    private isMultiPlayer = false;
+
     @Watch('turnNumber')
     private onTurnNumberChanged(newVal: number) {
         if (newVal) {
@@ -145,12 +148,7 @@ export default class About extends Vue {
 
             if (this.isWinning || this.turnNumber === this.turnMax) {
                 setTimeout(() => {
-                    this.ticTacToc.map((e) => {
-                        e.value = '';
-                    });
-                    this.turn = 'o';
-                    this.isWinning = false;
-                    this.turnNumber = 0;
+                    this.removePart();
                 }, 1000);
                 return;
             }
@@ -159,14 +157,19 @@ export default class About extends Vue {
         }
     }
 
+    @Watch('isMultiPlayer')
+    private onIsMultiPlayerChanged() {
+        this.removePart(true);
+    }
+
     private play(item: any) {
-        if (item.value || this.isWinning || this.turn !== 'o') { return; }
+        if (item.value || this.isWinning || ( this.turn !== 'o' && !this.isMultiPlayer)) { return; }
 
         item.value = this.turn;
 
         this.turnNumber++;
 
-        if (this.isWinning && this.turnNumber === this.turnMax) { return; }
+        if (this.isMultiPlayer || (this.isWinning && this.turnNumber === this.turnMax)) { return; }
 
         setTimeout(() => { this.autoPlay(); }, 1000);
     }
@@ -181,6 +184,21 @@ export default class About extends Vue {
         emptyBoxList[Math.floor(Math.random() * emptyBoxList.length)].value = this.turn;
 
         this.turnNumber++;
+    }
+
+    private removePart(withScore: boolean = false) {
+        this.ticTacToc.map((e) => {
+            e.value = '';
+        });
+        this.turn = 'o';
+        this.isWinning = false;
+        this.turnNumber = 0;
+
+        if (!withScore) { return; }
+
+        this.winX = 0;
+        this.winO = 0;
+        this.draw = 0;
     }
 }
 </script>
