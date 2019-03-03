@@ -10,9 +10,10 @@
   "dependencies": {
     "ant-design-vue": "^1.3.5",
     "class-transformer": "^0.2.0",
-    "firebase": "^5.8.4",
+    "firebase": "^5.8.5",
+    "firebaseui": "^3.5.2",
     "reflect-metadata": "^0.1.13",
-    "vue": "^2.6.7",
+    "vue": "^2.6.8",
     "vue-class-component": "^7.0.1",
     "vue-property-decorator": "^7.0.0",
     "vue-router": "^3.0.1",
@@ -28,7 +29,7 @@
     "sass": "^1.17.2",
     "sass-loader": "^7.1.0",
     "typescript": "^3.3.3333",
-    "vue-template-compiler": "^2.6.7",
-    "webpack": "^4.29.5"
+    "vue-template-compiler": "^2.6.8",
+    "webpack": "^4.29.6"
   }
 }

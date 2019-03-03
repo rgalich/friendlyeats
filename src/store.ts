@@ -1,3 +1,4 @@
+import { CreateAccountModel } from './models/createAccountModel';
 import { UserModel } from './models/userModel';
 import Vue from 'vue';
 import Vuex from 'vuex';
@@ -28,6 +29,13 @@ export default new Vuex.Store({
     },
     addUser({ commit }, user: UserModel) {
       Firebase.db.collection('user').add(UserModel.toPlan(user));
+    },
+    createAccount({ commit }, createAccount: CreateAccountModel) {
+      Firebase.auth.createUserWithEmailAndPassword(createAccount.email, createAccount.password).then((e) => {
+        console.log(e);
+      }).catch((error) => {
+        console.log(error);
+      });
     },
   },
   getters: {
