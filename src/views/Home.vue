@@ -61,10 +61,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import Firebase from "../firebaseConfig";
-import { Getter, Action } from "vuex-class";
-import { UserModel } from "@/models/userModel";
+import { Component, Vue } from 'vue-property-decorator';
+import Firebase from '../firebaseConfig';
+import { Getter, Action } from 'vuex-class';
+import { UserModel } from '@/models/userModel';
 import { CreateAccountModel } from '@/models/createAccountModel';
 
 @Component
@@ -76,25 +76,22 @@ export default class Home extends Vue {
   private beforeCreate() {
     this.form = this.$form.createForm(this);
   }
-  
 
   private handleSubmit(e: any) {
     e.preventDefault();
     this.form.validateFields((err: any, values: any) => {
       if (!err) {
-        const createAccountModel = CreateAccountModel.toClass(values);
-        this.createAccount(CreateAccountModel.toClass(values));
+        this.createAccount(values.email);
       }
     });
   }
 
-  private handleConfirmPassword = (rule, value, callback) => {
-        const { getFieldValue } = this.form;
-        if (value && value !== getFieldValue('password')) {
-            callback('Les mots de passe doivent-être identique')
-        }
-
-        callback()
- }
+  private handleConfirmPassword = (rule: any, value: any, callback: any) => {
+    const { getFieldValue } = this.form;
+    if (value && value !== getFieldValue('password')) {
+      callback('Les mots de passe doivent-être identique');
+    }
+    callback();
+  }
 }
 </script>

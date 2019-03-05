@@ -4,6 +4,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Firebase from './firebaseConfig';
 import { plainToClass, classToPlain } from 'class-transformer';
+import { ConfirmPasswordReset } from './models/confirmPasswordReset';
 
 Vue.use(Vuex);
 
@@ -30,8 +31,23 @@ export default new Vuex.Store({
     addUser({ commit }, user: UserModel) {
       Firebase.db.collection('user').add(UserModel.toPlan(user));
     },
-    createAccount({ commit }, createAccount: CreateAccountModel) {
-      Firebase.auth.createUserWithEmailAndPassword(createAccount.email, createAccount.password).then((e) => {
+    createAccount({ commit }, email: string) {
+      const actionCodeSettings = {
+        url: 'http://localhost:8081/about',
+        handleCodeInApp: true,
+      };
+      Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings).then((e) => {
+        console.log(e);
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    confirmPasswordReset({ commit }, confirmPasswordReset: ConfirmPasswordReset) {
+      const actionCodeSettings = {
+        url: 'http://localhost:8081/about',
+        handleCodeInApp: true,
+      };
+      Firebase.auth.confirmPasswordReset(confirmPasswordReset.code, confirmPasswordReset.newPassword).then((e) => {
         console.log(e);
       }).catch((error) => {
         console.log(error);
