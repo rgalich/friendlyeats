@@ -48,7 +48,13 @@ export default new Vuex.Store({
       };
       Firebase.auth.signInWithEmailLink('remigalichon@gmail.com')
       .then((e) => {
-        console.log('ee');
+        var user = Firebase.auth.currentUser;
+        console.log(user)
+        user!.updatePassword(confirmPasswordResetModel.newPassword).then(function() {
+          console.log('ee');
+        }).catch(function(error) {
+          // An error happened.
+        });
       })
       .catch((error) => {
         console.log(error);
