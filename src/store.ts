@@ -46,9 +46,9 @@ export default new Vuex.Store({
         url: 'http://localhost:8081/confirmPasswordReset',
         handleCodeInApp: true,
       };
-      Firebase.auth.pass(confirmPasswordResetModel.code, confirmPasswordResetModel.newPassword)
+      Firebase.auth.signInWithEmailLink('remigalichon@gmail.com')
       .then((e) => {
-        console.log(e);
+        console.log('ee');
       })
       .catch((error) => {
         console.log(error);
