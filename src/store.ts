@@ -4,7 +4,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Firebase from './firebaseConfig';
 import { plainToClass, classToPlain } from 'class-transformer';
-import { ConfirmPasswordReset } from './models/confirmPasswordReset';
+import { ConfirmPasswordResetModel } from './models/confirmPasswordResetModel';
 
 Vue.use(Vuex);
 
@@ -33,23 +33,24 @@ export default new Vuex.Store({
     },
     createAccount({ commit }, email: string) {
       const actionCodeSettings = {
-        url: 'http://localhost:8081/about',
+        url: 'http://localhost:8081/confirmPasswordReset',
         handleCodeInApp: true,
       };
-      Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings).then((e) => {
-        console.log(e);
-      }).catch((error) => {
+      Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
+      .catch((error) => {
         console.log(error);
       });
     },
-    confirmPasswordReset({ commit }, confirmPasswordReset: ConfirmPasswordReset) {
+    confirmPasswordReset({ commit }, confirmPasswordResetModel: ConfirmPasswordResetModel) {
       const actionCodeSettings = {
-        url: 'http://localhost:8081/about',
+        url: 'http://localhost:8081/confirmPasswordReset',
         handleCodeInApp: true,
       };
-      Firebase.auth.confirmPasswordReset(confirmPasswordReset.code, confirmPasswordReset.newPassword).then((e) => {
+      Firebase.auth.pass(confirmPasswordResetModel.code, confirmPasswordResetModel.newPassword)
+      .then((e) => {
         console.log(e);
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.log(error);
       });
     },
