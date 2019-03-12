@@ -40,6 +40,10 @@ import { CreateAccountModel } from '@/models/createAccountModel';
 export default class Home extends Vue {
   @Action private createAccount!: any;
 
+  @Action private fetchProvidersForEmail!: any;
+
+  @Getter private emailExist!: boolean;
+
   private form!: any;
 
   private beforeCreate() {
@@ -50,6 +54,13 @@ export default class Home extends Vue {
     e.preventDefault();
     this.form.validateFields((err: any, values: any) => {
       if (!err) {
+        this.fetchProvidersForEmail(values.email);
+
+        if (this.emailExist) { 
+          this.$message.error('Un compte existe.');
+          return; 
+        }
+
         this.createAccount(values.email);
       }
     });
