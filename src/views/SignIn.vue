@@ -3,8 +3,20 @@
     <a-layout-content>
       <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
         <a-col :span="8">
-          <a-card headStysle="textAlign: center" title="Mot de passe">
+          <a-card headStysle="textAlign: center" title="Se connecter">
             <a-form :form="form" class="login-form" @submit="handleSubmit">
+              <a-form-item>
+                <a-input
+                  placeholder="Email"
+                  a-input
+                  v-decorator="[
+                    'email',
+                    { rules: [{ required: true, message: `L'adresse est obligatoire.` }] }
+                  ]"
+                >
+                  <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)"/>
+                </a-input>
+              </a-form-item>
               <a-form-item>
                 <a-input
                   type="password"
@@ -14,22 +26,6 @@
                     { rules: [
                       { required: true, message: `Le mot de passe est obligatoire.` },
                       { min: 6, message: `Le mot de passe est trop court.` }
-                    ] }
-                  ]"
-                >
-                  <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)"/>
-                </a-input>
-              </a-form-item>
-              <a-form-item>
-                <a-input
-                  type="password"
-                  placeholder="Confirmer le mot de passe"
-                  v-decorator="[
-                    'passwordConfig',
-                    { rules: [
-                      { required: true, message: `Le mot de passe est obligatoire.` },
-                      { min: 6, message: `Le mot de passe est trop court.` },
-                      { validator: handleConfirmPassword }
                     ] }
                   ]"
                 >
@@ -53,13 +49,15 @@ import { Component, Vue } from 'vue-property-decorator';
 import Firebase from '../firebaseConfig';
 import { Getter, Action } from 'vuex-class';
 import { UserModel } from '@/models/userModel';
-import { ConfirmPasswordResetModel } from '@/models/confirmPasswordResetModel';
+import { CreateAccountModel } from '@/models/createAccountModel';
 
 @Component
-export default class ConfirmPasswordReset extends Vue {
-  @Action private updatePassword!: any;
+export default class Home extends Vue {
+  @Action private createAccount!: any;
 
-  @Action private signInWithEmailLink!: any;
+  @Action private fetchProvidersForEmail!: any;
+
+  @Getter private emailExist!: boolean;
 
   private form!: any;
 
@@ -67,25 +65,15 @@ export default class ConfirmPasswordReset extends Vue {
     this.form = this.$form.createForm(this);
   }
 
-  private created() {
-    this.signInWithEmailLink();
-  }
-
   private handleSubmit(e: any) {
     e.preventDefault();
     this.form.validateFields((err: any, values: any) => {
       if (!err) {
-        this.updatePassword(values.password);
+        this.fetchProvidersForEmail(values.email);
+
+        this.createAccount(values.email);
       }
     });
-  }
-
-  private handleConfirmPassword = (rule: any, value: any, callback: any) => {
-    const { getFieldValue } = this.form;
-    if (value && value !== getFieldValue('password')) {
-      callback('Les mots de passe doivent-être identique');
-    }
-    callback();
   }
 }
 </script>

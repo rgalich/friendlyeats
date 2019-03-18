@@ -1,7 +1,7 @@
 import { CreateAccountModel } from './models/createAccountModel';
 import { UserModel } from './models/userModel';
 import Vue from 'vue';
-import Vuex from 'vuex';
+import Vuex, { Payload } from 'vuex';
 import Firebase from './firebaseConfig';
 import { plainToClass, classToPlain } from 'class-transformer';
 import { ConfirmPasswordResetModel } from './models/confirmPasswordResetModel';
@@ -11,10 +11,14 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     userList: [] as UserModel[],
+    emailExist: false,
   },
   mutations: {
     UPDATE_USER_LIST(state, payload: UserModel[]) {
       state.userList = payload;
+    },
+    UPDATE_EMAIL_EXIST(state, payload: boolean) {
+      state.emailExist = payload;
     },
   },
   actions: {
@@ -33,35 +37,61 @@ export default new Vuex.Store({
     },
     createAccount({ commit }, email: string) {
       const actionCodeSettings = {
-        url: 'http://localhost:8081/confirmPasswordReset',
+        url: 'http://localhost:8080/confirmPasswordReset',
         handleCodeInApp: true,
       };
       Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
-      .catch((error) => {
-        console.log(error);
-      });
-    },
-    confirmPasswordReset({ commit }, confirmPasswordResetModel: ConfirmPasswordResetModel) {
-      const actionCodeSettings = {
-        url: 'http://localhost:8081/confirmPasswordReset',
-        handleCodeInApp: true,
-      };
-      Firebase.auth.signInWithEmailLink('remigalichon@gmail.com')
-      .then((e) => {
-        var user = Firebase.auth.currentUser;
-        console.log(user)
-        user!.updatePassword(confirmPasswordResetModel.newPassword).then(function() {
-          console.log('ee');
-        }).catch(function(error) {
-          // An error happened.
-        });
+      .then(() => {
+        localStorage.setItem('email', email);
       })
       .catch((error) => {
         console.log(error);
       });
     },
+    signInWithEmailLink({ commit }): boolean {
+      const email = localStorage.getItem('email');
+
+      if (!email) { return false; }
+
+      Firebase.auth.signInWithEmailLink(email)
+      .catch((error) => {
+        if (error.code === 'auth/invalid-action-code') {
+          return false;
+        }
+      });
+
+      return false;
+    },
+    fetchProvidersForEmail({ commit, dispatch }, email) {
+      Firebase.auth.fetchSignInMethodsForEmail(email)
+      .then((providers) => {
+        if (providers.length > 0) {
+          dispatch('sendPasswordResetEmail', email);
+        }
+      });
+    },
+    updatePassword({ commit }, password: string) {
+      const user = Firebase.auth.currentUser;
+
+      if (!user) { return; }
+
+      user.updatePassword(password)
+      .catch((error) => {
+        console.log(error);
+      });
+    },
+    sendPasswordResetEmail({ commit }, email) {
+      if (!email) { return; }
+      const actionCodeSettings: firebase.auth.ActionCodeSettings = {
+        url: 'http://localhost:8080/confirmPasswordReset',
+        handleCodeInApp: true,
+      };
+
+      Firebase.auth.sendPasswordResetEmail(email, actionCodeSettings);
+    },
   },
   getters: {
     userList: (state) => state.userList,
+    emailExist: (state) => state.emailExist,
   },
 });

@@ -5,7 +5,7 @@ import store from './store';
 
 import 'reflect-metadata';
 
-import { Button, Table, Modal, Form, Input, Layout, Card, Row, Col, Icon } from 'ant-design-vue';
+import { Button, Table, Modal, Form, Input, Layout, Card, Row, Col, Icon, message } from 'ant-design-vue';
 Vue.component(Button.name, Button);
 Vue.component(Table.name, Table);
 Vue.component(Modal.name, Modal);
@@ -18,6 +18,8 @@ Vue.component(Card.name, Card);
 Vue.component(Row.name, Row);
 Vue.component(Col.name, Col);
 Vue.component(Icon.name, Icon);
+
+Vue.prototype.$message = message;
 
 Vue.config.productionTip = false;
 
