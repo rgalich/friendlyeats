@@ -34,7 +34,6 @@
               </a-form-item>
               <a-form-item>
                 <a-button type="primary" html-type="submit" class="login-form-button">Continuer</a-button>Or
-                <a href>register now!</a>
               </a-form-item>
             </a-form>
           </a-card>

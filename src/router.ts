@@ -27,5 +27,10 @@ export default new Router({
       component: () => import('./views/ConfirmPasswordReset.vue'),
       props: (route) => ({ query: route.query }),
     },
+    {
+      path: '/expiredLink',
+      name: 'expiredLink',
+      component: () => import('./views/ExpiredLink.vue')
+    },
   ],
 });

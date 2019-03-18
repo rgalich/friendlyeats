@@ -68,7 +68,9 @@ export default class ConfirmPasswordReset extends Vue {
   }
 
   private created() {
-    this.signInWithEmailLink();
+    if (this.signInWithEmailLink()) {
+      this.$router.push({ name: 'expiredLink' })
+    };
   }
 
   private handleSubmit(e: any) {
