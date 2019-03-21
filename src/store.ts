@@ -37,7 +37,7 @@ export default new Vuex.Store({
     },
     createAccount({ commit }, email: string) {
       const actionCodeSettings = {
-        url: 'http://localhost:8080/confirmPasswordReset',
+        url: 'http://localhost:8080/passwordReset',
         handleCodeInApp: true,
       };
       Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
@@ -63,12 +63,13 @@ export default new Vuex.Store({
       return false;
     },
     fetchProvidersForEmail({ commit, dispatch }, email) {
-      Firebase.auth.fetchSignInMethodsForEmail(email)
-      .then((providers) => {
-        if (providers.length > 0) {
-          dispatch('sendPasswordResetEmail', email);
-        }
-      });
+      dispatch('createAccount', email);
+      // Firebase.auth.fetchSignInMethodsForEmail(email)
+      // .then((providers) => {
+      //   if (providers.length > 0) {
+      //     dispatch('sendPasswordResetEmail', email);
+      //   }
+      // });
     },
     updatePassword({ commit }, password: string) {
       const user = Firebase.auth.currentUser;

@@ -5,7 +5,7 @@ import store from './store';
 
 import 'reflect-metadata';
 
-import { Button, Table, Modal, Form, Input, Layout, Card, Row, Col, Icon, message } from 'ant-design-vue';
+import { Button, Table, Modal, Form, Input, Layout, Card, Row, Col, Icon, Menu, message } from 'ant-design-vue';
 Vue.component(Button.name, Button);
 Vue.component(Table.name, Table);
 Vue.component(Modal.name, Modal);
@@ -13,11 +13,14 @@ Vue.component(Form.name, Form);
 Vue.component(Form.Item.name, Form.Item);
 Vue.component(Input.name, Input);
 Vue.component(Layout.name, Layout);
+Vue.component(Layout.Header.name, Layout.Header);
 Vue.component(Layout.Content.name, Layout.Content);
 Vue.component(Card.name, Card);
 Vue.component(Row.name, Row);
 Vue.component(Col.name, Col);
 Vue.component(Icon.name, Icon);
+Vue.component(Menu.name, Menu);
+Vue.component(Menu.Item.name, Menu.Item);
 
 Vue.prototype.$message = message;
 

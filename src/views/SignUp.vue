@@ -3,7 +3,7 @@
     <a-layout-content>
       <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
         <a-col :span="8">
-          <a-card title="Se connecter">
+          <a-card title="S'inscrire">
             <a-form :form="form" @submit="handleSubmit">
               <a-form-item>
                 <a-input
@@ -21,21 +21,7 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-input
-                  type="password"
-                  placeholder="Mot de passe"
-                  v-decorator="[
-                    'password',
-                    { rules: [
-                      { required: true, message: `Le mot de passe est obligatoire.` }
-                    ]}
-                  ]"
-                >
-                  <a-icon slot="prefix" type="lock"/>
-                </a-input>
-              </a-form-item>
-              <a-form-item>
-                <a-button type="primary" html-type="submit">Se connecter</a-button>
+                <a-button type="primary" html-type="submit">S'inscrire</a-button>
               </a-form-item>
             </a-form>
           </a-card>
@@ -47,15 +33,13 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import Firebase from '../firebaseConfig';
 import { Getter, Action } from 'vuex-class';
-import { UserModel } from '@/models/userModel';
-import { CreateAccountModel } from '@/models/createAccountModel';
 
 @Component
-export default class SignIn extends Vue {
-
+export default class SignUp extends Vue {
   private form!: any;
+
+  @Action private fetchProvidersForEmail!: any;
 
   private beforeCreate() {
     this.form = this.$form.createForm(this);
@@ -65,6 +49,7 @@ export default class SignIn extends Vue {
     e.preventDefault();
     this.form.validateFields((err: any, values: any) => {
       if (!err) {
+        this.fetchProvidersForEmail(values.email);
         console.log('Validation OK');
       }
     });
