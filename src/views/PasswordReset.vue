@@ -62,18 +62,22 @@ export default class ConfirmPasswordReset extends Vue {
   private form!: any;
 
   private beforeCreate() {
-    if (this.signInWithEmailLink()) {
-      this.$router.push({ name: 'expiredLink' })
-    };
     this.form = this.$form.createForm(this);
   }
 
-  private handleSubmit(e: any) {
+  private async created() {
+    if (!(await this.signInWithEmailLink())) {
+      this.$router.push({ name: 'expiredLink' })
+    };
+  }
+
+  private async handleSubmit(e: any) {
     e.preventDefault();
-    this.form.validateFields((err: any, values: any) => {
+    this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
-        // this.updatePassword(values.password);
-        console.log('Validation OK');
+        if (await this.updatePassword(values.password)) {
+          this.$router.push({ name: 'home' });
+        };
       }
     });
   }

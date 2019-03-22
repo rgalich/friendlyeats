@@ -12,6 +12,7 @@ export default new Vuex.Store({
   state: {
     userList: [] as UserModel[],
     emailExist: false,
+    isConnect: false,
   },
   mutations: {
     UPDATE_USER_LIST(state, payload: UserModel[]) {
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     },
     UPDATE_EMAIL_EXIST(state, payload: boolean) {
       state.emailExist = payload;
+    },
+    UPDATE_IS_CONNECT(state, payload: boolean) {
+      state.isConnect = payload;
     },
   },
   actions: {
@@ -41,26 +45,25 @@ export default new Vuex.Store({
         handleCodeInApp: true,
       };
       Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
-      .then(() => {
-        localStorage.setItem('email', email);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        .then(() => {
+          localStorage.setItem('email', email);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
-    signInWithEmailLink({ commit }): boolean {
+    async signInWithEmailLink({ commit }): Promise<boolean> {
       const email = localStorage.getItem('email');
 
       if (!email) { return false; }
 
-      Firebase.auth.signInWithEmailLink(email)
-      .catch((error) => {
-        if (error.code === 'auth/invalid-action-code') {
+      return await Firebase.auth.signInWithEmailLink(email)
+        .then(() => {
+          return true;
+        })
+        .catch((error) => {
           return false;
-        }
-      });
-
-      return false;
+        });
     },
     fetchProvidersForEmail({ commit, dispatch }, email) {
       dispatch('createAccount', email);
@@ -71,14 +74,29 @@ export default new Vuex.Store({
       //   }
       // });
     },
-    updatePassword({ commit }, password: string) {
+    async updatePassword({ commit }, password: string): Promise<boolean> {
       const user = Firebase.auth.currentUser;
 
-      if (!user) { return; }
+      if (!user) { return false; }
 
-      user.updatePassword(password)
-      .catch((error) => {
-        console.log(error);
+      return user.updatePassword(password)
+        .then(() => {
+          commit('UPDATE_IS_CONNECT', true);
+          return true;
+        })
+        .catch((error) => {
+          commit('UPDATE_IS_CONNECT', false);
+          return false;
+        });
+    },
+    async signOut({ commit }): Promise<boolean> {
+      return await Firebase.auth.signOut()
+      .then(() => {
+        commit('UPDATE_IS_CONNECT', false);
+        return true;
+      })
+      .catch(() => {
+        return false;
       });
     },
     sendPasswordResetEmail({ commit }, email) {
@@ -94,5 +112,6 @@ export default new Vuex.Store({
   getters: {
     userList: (state) => state.userList,
     emailExist: (state) => state.emailExist,
+    isConnect: (state) => state.isConnect,
   },
 });
