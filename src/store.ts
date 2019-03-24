@@ -1,4 +1,4 @@
-import { CreateAccountModel } from './models/createAccountModel';
+import { UserWithEmailAndPasswordModel } from './models/userWithEmailAndPasswordModel';
 import { UserModel } from './models/userModel';
 import Vue from 'vue';
 import Vuex, { Payload } from 'vuex';
@@ -13,6 +13,7 @@ export default new Vuex.Store({
     userList: [] as UserModel[],
     emailExist: false,
     isConnect: false,
+    user: null,
   },
   mutations: {
     UPDATE_USER_LIST(state, payload: UserModel[]) {
@@ -23,6 +24,9 @@ export default new Vuex.Store({
     },
     UPDATE_IS_CONNECT(state, payload: boolean) {
       state.isConnect = payload;
+    },
+    UPDATE_USER(state, payload: any) {
+      state.user = payload;
     },
   },
   actions: {
@@ -38,6 +42,52 @@ export default new Vuex.Store({
     },
     addUser({ commit }, user: UserModel) {
       Firebase.db.collection('user').add(UserModel.toPlan(user));
+    },
+    getUser({ commit }) {
+      Firebase.auth.onAuthStateChanged((user) => {
+        if (user) {
+          commit('UPDATE_USER', user);
+          console.log(user);
+        } else {
+          console.log('user is null');
+        }
+      });
+    },
+    async createUserWithEmailAndPassword(
+      { commit },
+      userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel,
+    ): Promise<boolean> {
+      return await Firebase.auth.createUserWithEmailAndPassword(
+        userWithEmailAndPasswordModel.email,
+        userWithEmailAndPasswordModel.password,
+      )
+      .then(() => {
+        return true;
+      })
+      .catch((error) => {
+        return false;
+      });
+    },
+    sendEmailVerification({ commit }) {
+      const actionCodeSettings = {
+        url: 'http://localhost:8080/',
+        handleCodeInApp: true,
+      };
+      const user = Firebase.auth.currentUser;
+      if (user) {
+        user.sendEmailVerification(actionCodeSettings).then(() => {
+          console.log('Email de vérif envoyé')
+        })
+        .catch((error) => {
+          console.log('Erreur envoie du mail de vérif');
+        });
+      }
+    },
+    signInWithEmailAndPassword({ commit }, userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel) {
+      Firebase.auth.signInWithEmailAndPassword(userWithEmailAndPasswordModel.email, userWithEmailAndPasswordModel.password)
+      .then((error) => {
+        console.log(error);
+      })
     },
     createAccount({ commit }, email: string) {
       const actionCodeSettings = {
@@ -91,13 +141,13 @@ export default new Vuex.Store({
     },
     async signOut({ commit }): Promise<boolean> {
       return await Firebase.auth.signOut()
-      .then(() => {
-        commit('UPDATE_IS_CONNECT', false);
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+        .then(() => {
+          commit('UPDATE_IS_CONNECT', false);
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
     },
     sendPasswordResetEmail({ commit }, email) {
       if (!email) { return; }
@@ -113,5 +163,6 @@ export default new Vuex.Store({
     userList: (state) => state.userList,
     emailExist: (state) => state.emailExist,
     isConnect: (state) => state.isConnect,
+    user: (state) => state.user,
   },
 });

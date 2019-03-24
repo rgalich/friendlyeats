@@ -50,12 +50,13 @@ import { Component, Vue } from 'vue-property-decorator';
 import Firebase from '../firebaseConfig';
 import { Getter, Action } from 'vuex-class';
 import { UserModel } from '@/models/userModel';
-import { CreateAccountModel } from '@/models/createAccountModel';
+import { UserWithEmailAndPasswordModel } from '@/models/userWithEmailAndPasswordModel';
 
 @Component
 export default class SignIn extends Vue {
-
   private form!: any;
+
+  @Action private signInWithEmailAndPassword!: any;
 
   private beforeCreate() {
     this.form = this.$form.createForm(this);
@@ -65,7 +66,7 @@ export default class SignIn extends Vue {
     e.preventDefault();
     this.form.validateFields((err: any, values: any) => {
       if (!err) {
-        console.log('Validation OK');
+        this.signInWithEmailAndPassword(UserWithEmailAndPasswordModel.toClass({ email: values.email, password: values.password }));
       }
     });
   }
