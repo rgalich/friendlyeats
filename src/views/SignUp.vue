@@ -11,7 +11,7 @@
               >
                 <a-form-item v-if="errorEmailExists">
                   <a-alert
-                    message="L'adresse mail est déjà prise."
+                    message="L'adresse mail est déjà utilisée."
                     type="error"
                     showIcon
                     closable
@@ -21,6 +21,27 @@
                       <a-row>
                         <a-col :span="24">Veuillez vous <a @click="$router.push({ name: 'signIn' })">connecter</a>.</a-col>
                         <a-col :span="24">Ou modifier votre <a>mot de passe</a>.</a-col>
+                      </a-row>
+                    </template>
+                  </a-alert>
+                </a-form-item>
+                </transition>
+                <transition
+                enter-active-class="animated fadeInDown"
+                leave-active-class="animated fadeOutDown"
+              >
+                <a-form-item v-if="successSignUp">
+                  <a-alert
+                    message="Votre compte est créé."
+                    type="success"
+                    showIcon
+                    closable
+                    @close="updateSuccessSignUp(false)"
+                  >
+                    <template slot="description">
+                      <a-row>
+                        <a-col :span="24">Veuillez activer votre compte via l'email envoyé.</a-col>
+                        <a-col :span="24"><a @click="sendEmailVerification">Renvoyer le mail de validation</a>.</a-col>
                       </a-row>
                     </template>
                   </a-alert>
@@ -95,8 +116,10 @@ export default class SignUp extends Vue {
   @Action private sendEmailVerification!: any;
 
   @Getter private errorEmailExists!: boolean;
+  @Getter private successSignUp!: boolean;
 
   @Mutation('UPDATE_ERROR_EMAIL_EXISTS') private updateErrorEmailExists!: any;
+  @Mutation('UPDATE_SUCCESS_SIGN_UP') private updateSuccessSignUp!: any;
 
   private beforeCreate() {
     this.form = this.$form.createForm(this);
@@ -114,6 +137,7 @@ export default class SignUp extends Vue {
         );
         if (response) {
           this.sendEmailVerification();
+          this.updateSuccessSignUp(true);
         }
       }
     });

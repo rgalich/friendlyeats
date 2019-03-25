@@ -13,6 +13,7 @@ export default new Vuex.Store({
     userList: [] as UserModel[],
     isConnect: false,
     errorEmailExists: false,
+    successSignUp: false,
     user: null,
   },
   mutations: {
@@ -20,14 +21,18 @@ export default new Vuex.Store({
       state.userList = payload;
     },
     UPDATE_ERROR_EMAIL_EXISTS(state, payload: boolean) {
+      debugger
       state.errorEmailExists = payload;
+    },
+    UPDATE_SUCCESS_SIGN_UP(state, payload: boolean) {
+      state.successSignUp = payload;
     },
     UPDATE_IS_CONNECT(state, payload: boolean) {
       state.isConnect = payload;
     },
     UPDATE_USER(state, payload: any) {
       state.user = payload;
-    }
+    },
   },
   actions: {
     getUserList({ commit }) {
@@ -86,24 +91,27 @@ export default new Vuex.Store({
         });
       }
     },
+    applyActionCode({ commit }, code: string) {
+      Firebase.auth.checkActionCode(code)
+      .then((res) => {
+        Firebase.auth.applyActionCode(code);
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    },
     signInWithEmailAndPassword({ commit }, userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel) {
       Firebase.auth.signInWithEmailAndPassword(userWithEmailAndPasswordModel.email, userWithEmailAndPasswordModel.password)
       .then((error) => {
         console.log(error);
-      })
+      });
     },
     createAccount({ commit }, email: string) {
       const actionCodeSettings = {
         url: 'http://localhost:8080/passwordReset',
         handleCodeInApp: true,
       };
-      Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
-        .then(() => {
-          localStorage.setItem('email', email);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
     },
     async signInWithEmailLink({ commit }): Promise<boolean> {
       const email = localStorage.getItem('email');
@@ -165,6 +173,7 @@ export default new Vuex.Store({
   getters: {
     userList: (state) => state.userList,
     errorEmailExists: (state) => state.errorEmailExists,
+    successSignUp: (state) => state.successSignUp,
     isConnect: (state) => state.isConnect,
     user: (state) => state.user,
   },

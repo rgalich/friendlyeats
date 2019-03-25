@@ -32,5 +32,10 @@ export default new Router({
       name: 'expiredLink',
       component: () => import('./views/ExpiredLink.vue'),
     },
+    {
+      path: '/applyActionCode',
+      name: 'applyActionCode',
+      component: () => import('./views/ApplyActionCode.vue'),
+    },
   ],
 });
