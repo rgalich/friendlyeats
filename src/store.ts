@@ -11,23 +11,23 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     userList: [] as UserModel[],
-    emailExist: false,
     isConnect: false,
+    errorEmailExists: false,
     user: null,
   },
   mutations: {
     UPDATE_USER_LIST(state, payload: UserModel[]) {
       state.userList = payload;
     },
-    UPDATE_EMAIL_EXIST(state, payload: boolean) {
-      state.emailExist = payload;
+    UPDATE_ERROR_EMAIL_EXISTS(state, payload: boolean) {
+      state.errorEmailExists = payload;
     },
     UPDATE_IS_CONNECT(state, payload: boolean) {
       state.isConnect = payload;
     },
     UPDATE_USER(state, payload: any) {
       state.user = payload;
-    },
+    }
   },
   actions: {
     getUserList({ commit }) {
@@ -65,6 +65,9 @@ export default new Vuex.Store({
         return true;
       })
       .catch((error) => {
+        if (error.code === 'auth/email-already-in-use') {
+          commit('UPDATE_ERROR_EMAIL_EXISTS', true);
+        }
         return false;
       });
     },
@@ -161,7 +164,7 @@ export default new Vuex.Store({
   },
   getters: {
     userList: (state) => state.userList,
-    emailExist: (state) => state.emailExist,
+    errorEmailExists: (state) => state.errorEmailExists,
     isConnect: (state) => state.isConnect,
     user: (state) => state.user,
   },

@@ -5,6 +5,9 @@
         <a-col :span="8">
           <a-card title="S'inscrire">
             <a-form :form="form" @submit="handleSubmit">
+              <a-form-item v-if="errorEmailExists">
+                <a-alert message="L'adresse mail est déjà prise." banner closable @close="updateErrorEmailExists(false)" />
+              </a-form-item>
               <a-form-item>
                 <a-input
                   placeholder="Email"
@@ -63,7 +66,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter, Action } from 'vuex-class';
+import { Getter, Action, Mutation } from 'vuex-class';
 import { UserWithEmailAndPasswordModel } from '../models/userWithEmailAndPasswordModel';
 
 @Component
@@ -72,6 +75,10 @@ export default class SignUp extends Vue {
 
   @Action private createUserWithEmailAndPassword!: any;
   @Action private sendEmailVerification!: any;
+
+  @Getter private errorEmailExists!: boolean;
+
+  @Mutation('UPDATE_ERROR_EMAIL_EXISTS') private updateErrorEmailExists!: any;
 
   private beforeCreate() {
     this.form = this.$form.createForm(this);
