@@ -27,6 +27,8 @@ Vue.prototype.$message = message;
 
 Vue.config.productionTip = false;
 
+import 'animate.css';
+
 new Vue({
   router,
   store,

@@ -5,9 +5,20 @@
         <a-col :span="8">
           <a-card title="S'inscrire">
             <a-form :form="form" @submit="handleSubmit">
-              <a-form-item v-if="errorEmailExists">
-                <a-alert message="L'adresse mail est déjà prise." banner closable @close="updateErrorEmailExists(false)" />
-              </a-form-item>
+              <transition
+                name="custom-classes-transition"
+                enter-active-class="animated tada"
+                leave-active-class="animated bounceOutRight"
+              >
+                <a-form-item v-if="errorEmailExists">
+                  <a-alert
+                    message="L'adresse mail est déjà prise."
+                    banner
+                    closable
+                    @close="updateErrorEmailExists(false)"
+                  />
+                </a-form-item>
+              </transition>
               <a-form-item>
                 <a-input
                   placeholder="Email"
@@ -35,7 +46,7 @@
                     ] }
                   ]"
                 >
-                  <a-icon slot="prefix" type="lock" />
+                  <a-icon slot="prefix" type="lock"/>
                 </a-input>
               </a-form-item>
               <a-form-item>
@@ -50,7 +61,7 @@
                     ] }
                   ]"
                 >
-                  <a-icon slot="prefix" type="lock" />
+                  <a-icon slot="prefix" type="lock"/>
                 </a-input>
               </a-form-item>
               <a-form-item>
@@ -88,7 +99,12 @@ export default class SignUp extends Vue {
     e.preventDefault();
     this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
-        const response = await this.createUserWithEmailAndPassword(UserWithEmailAndPasswordModel.toClass({ email: values.email, password: values.password }));
+        const response = await this.createUserWithEmailAndPassword(
+          UserWithEmailAndPasswordModel.toClass({
+            email: values.email,
+            password: values.password
+          })
+        );
         if (response) {
           this.sendEmailVerification();
         }
@@ -102,6 +118,6 @@ export default class SignUp extends Vue {
       callback('Les mots de passe doivent-être identiques.');
     }
     callback();
-  }
+  };
 }
 </script>
