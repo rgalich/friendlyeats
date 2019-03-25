@@ -6,17 +6,24 @@
           <a-card title="S'inscrire">
             <a-form :form="form" @submit="handleSubmit">
               <transition
-                name="custom-classes-transition"
                 enter-active-class="animated fadeInDown"
                 leave-active-class="animated fadeOutDown"
               >
                 <a-form-item v-if="errorEmailExists">
                   <a-alert
                     message="L'adresse mail est déjà prise."
-                    banner
+                    type="error"
+                    showIcon
                     closable
                     @close="updateErrorEmailExists(false)"
-                  />
+                  >
+                    <template slot="description">
+                      <a-row>
+                        <a-col :span="24">Veuillez vous <a @click="$router.push({ name: 'signIn' })">connecter</a>.</a-col>
+                        <a-col :span="24">Ou modifier votre <a>mot de passe</a>.</a-col>
+                      </a-row>
+                    </template>
+                  </a-alert>
                 </a-form-item>
               </transition>
               <a-form-item>

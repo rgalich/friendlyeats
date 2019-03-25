@@ -3,8 +3,12 @@
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
-    </div> -->
-    <router-view/>
+    </div>-->
+    <transition
+      enter-active-class="animated fadeInDown"
+    >
+      <router-view/>
+    </transition>
   </div>
 </template>
 
