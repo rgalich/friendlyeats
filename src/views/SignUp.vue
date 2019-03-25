@@ -7,8 +7,8 @@
             <a-form :form="form" @submit="handleSubmit">
               <transition
                 name="custom-classes-transition"
-                enter-active-class="animated tada"
-                leave-active-class="animated bounceOutRight"
+                enter-active-class="animated fadeInDown"
+                leave-active-class="animated fadeOutDown"
               >
                 <a-form-item v-if="errorEmailExists">
                   <a-alert
