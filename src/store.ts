@@ -5,6 +5,7 @@ import Vuex, { Payload } from 'vuex';
 import Firebase from './firebaseConfig';
 import { plainToClass, classToPlain } from 'class-transformer';
 import { ConfirmPasswordResetModel } from './models/confirmPasswordResetModel';
+import { ActionCodeInfoEnum } from './enums/actionCodeInfoEnum';
 
 Vue.use(Vuex);
 
@@ -21,7 +22,6 @@ export default new Vuex.Store({
       state.userList = payload;
     },
     UPDATE_ERROR_EMAIL_EXISTS(state, payload: boolean) {
-      debugger
       state.errorEmailExists = payload;
     },
     UPDATE_SUCCESS_SIGN_UP(state, payload: boolean) {
@@ -66,46 +66,46 @@ export default new Vuex.Store({
         userWithEmailAndPasswordModel.email,
         userWithEmailAndPasswordModel.password,
       )
-      .then(() => {
-        return true;
-      })
-      .catch((error) => {
-        if (error.code === 'auth/email-already-in-use') {
-          commit('UPDATE_ERROR_EMAIL_EXISTS', true);
-        }
-        return false;
-      });
-    },
-    sendEmailVerification({ commit }) {
-      const actionCodeSettings = {
-        url: 'http://localhost:8080/',
-        handleCodeInApp: true,
-      };
-      const user = Firebase.auth.currentUser;
-      if (user) {
-        user.sendEmailVerification(actionCodeSettings).then(() => {
-          console.log('Email de vérif envoyé')
+        .then(() => {
+          return true;
         })
         .catch((error) => {
-          console.log('Erreur envoie du mail de vérif');
+          if (error.code === 'auth/email-already-in-use') {
+            commit('UPDATE_ERROR_EMAIL_EXISTS', true);
+          }
+          return false;
         });
-      }
     },
-    applyActionCode({ commit }, code: string) {
-      Firebase.auth.checkActionCode(code)
-      .then((res) => {
-        Firebase.auth.applyActionCode(code);
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    async sendEmailVerification({ commit }): Promise<boolean> {
+      const user = Firebase.auth.currentUser;
+      return user ? await user.sendEmailVerification()
+        .then(() => {
+          return true;
+        })
+        .catch((error) => {
+          return false;
+        }) : false;
+    },
+    async applyActionCode({ commit }, code: string): Promise<ActionCodeInfoEnum> {
+      return await Firebase.auth.checkActionCode(code)
+        .then(async (actionCodeInfo) => {
+          return await Firebase.auth.applyActionCode(code)
+            .then(() => {
+              return actionCodeInfo.operation as ActionCodeInfoEnum;
+            })
+            .catch((error) => {
+              return ActionCodeInfoEnum.Error;
+            });
+        })
+        .catch((error) => {
+          return ActionCodeInfoEnum.Error;
+        });
     },
     signInWithEmailAndPassword({ commit }, userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel) {
       Firebase.auth.signInWithEmailAndPassword(userWithEmailAndPasswordModel.email, userWithEmailAndPasswordModel.password)
-      .then((error) => {
-        console.log(error);
-      });
+        .then((error) => {
+          console.log(error);
+        });
     },
     createAccount({ commit }, email: string) {
       const actionCodeSettings = {

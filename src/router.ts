@@ -37,5 +37,10 @@ export default new Router({
       name: 'applyActionCode',
       component: () => import('./views/ApplyActionCode.vue'),
     },
+    {
+      path: '/verifyEmail',
+      name: 'verifyEmail',
+      component: () => import('./views/VerifyEmail.vue'),
+    },
   ],
 });

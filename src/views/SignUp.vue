@@ -136,7 +136,7 @@ export default class SignUp extends Vue {
           })
         );
         if (response) {
-          this.sendEmailVerification();
+          await this.sendEmailVerification();
           this.updateSuccessSignUp(true);
         }
       }
