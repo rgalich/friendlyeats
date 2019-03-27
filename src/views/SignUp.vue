@@ -9,13 +9,13 @@
                 enter-active-class="animated fadeInDown"
                 leave-active-class="animated fadeOutDown"
               >
-                <a-form-item v-if="errorEmailExists">
+                <a-form-item v-if="isEmailAlreadyInUse">
                   <a-alert
                     message="L'adresse mail est déjà utilisée."
                     type="error"
                     showIcon
                     closable
-                    @close="updateErrorEmailExists(false)"
+                    @close="isEmailAlreadyInUse = false"
                   >
                     <template slot="description">
                       <a-row>
@@ -30,13 +30,13 @@
                 enter-active-class="animated fadeInDown"
                 leave-active-class="animated fadeOutDown"
               >
-                <a-form-item v-if="successSignUp">
+                <a-form-item v-if="isSuccess">
                   <a-alert
                     message="Votre compte est créé."
                     type="success"
                     showIcon
                     closable
-                    @close="updateSuccessSignUp(false)"
+                    @close="isSuccess = false"
                   >
                     <template slot="description">
                       <a-row>
@@ -107,19 +107,16 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Action, Mutation } from 'vuex-class';
 import { UserWithEmailAndPasswordModel } from '../models/userWithEmailAndPasswordModel';
+import { CreateUserWithEmailAndPasswordEnum } from '@/enums/createUserWithEmailAndPasswordEnum';
 
 @Component
 export default class SignUp extends Vue {
   private form!: any;
+  private isSuccess: boolean = false;
+  private isEmailAlreadyInUse: boolean = false;
 
   @Action private createUserWithEmailAndPassword!: any;
   @Action private sendEmailVerification!: any;
-
-  @Getter private errorEmailExists!: boolean;
-  @Getter private successSignUp!: boolean;
-
-  @Mutation('UPDATE_ERROR_EMAIL_EXISTS') private updateErrorEmailExists!: any;
-  @Mutation('UPDATE_SUCCESS_SIGN_UP') private updateSuccessSignUp!: any;
 
   private beforeCreate() {
     this.form = this.$form.createForm(this);
@@ -129,15 +126,28 @@ export default class SignUp extends Vue {
     e.preventDefault();
     this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
-        const response = await this.createUserWithEmailAndPassword(
+        const response: CreateUserWithEmailAndPasswordEnum = await this.createUserWithEmailAndPassword(
           UserWithEmailAndPasswordModel.toClass({
             email: values.email,
             password: values.password
           })
         );
-        if (response) {
-          await this.sendEmailVerification();
-          this.updateSuccessSignUp(true);
+        switch(response) { 
+          case CreateUserWithEmailAndPasswordEnum.Success: { 
+            await this.sendEmailVerification();
+            this.isEmailAlreadyInUse = false;
+            this.isSuccess = true;
+            break; 
+          } 
+          case CreateUserWithEmailAndPasswordEnum.EmailAlreadyInUse: { 
+              this.isEmailAlreadyInUse = true;
+              this.isSuccess = false;
+              break; 
+          } 
+          default: { 
+              
+              break; 
+          } 
         }
       }
     });
