@@ -20,7 +20,7 @@
                     <template slot="description">
                       <a-row>
                         <a-col :span="24">Veuillez vous <a @click="$router.push({ name: 'signIn' })">connecter</a>.</a-col>
-                        <a-col :span="24">Ou modifier votre <a>mot de passe</a>.</a-col>
+                        <a-col :span="24">Ou modifier votre <a @click="$router.push({ name: 'sendPasswordResetEmail' })">mot de passe</a>.</a-col>
                       </a-row>
                     </template>
                   </a-alert>
@@ -145,8 +145,7 @@ export default class SignUp extends Vue {
               break; 
           } 
           default: { 
-              
-              break; 
+              break;
           } 
         }
       }

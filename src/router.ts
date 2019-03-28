@@ -42,5 +42,10 @@ export default new Router({
       name: 'verifyEmail',
       component: () => import('./views/VerifyEmail.vue'),
     },
+    {
+      path: '/sendPasswordResetEmail',
+      name: 'sendPasswordResetEmail',
+      component: () => import('./views/SendPasswordResetEmail.vue'),
+    },
   ],
 });

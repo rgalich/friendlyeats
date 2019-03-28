@@ -7,6 +7,7 @@ import { plainToClass, classToPlain } from 'class-transformer';
 import { ConfirmPasswordResetModel } from './models/confirmPasswordResetModel';
 import { ActionCodeInfoEnum } from './enums/actionCodeInfoEnum';
 import { CreateUserWithEmailAndPasswordEnum } from './enums/createUserWithEmailAndPasswordEnum';
+import { SendPasswordResetEmailEnum } from './enums/sendPasswordResetEmailEnum';
 
 Vue.use(Vuex);
 
@@ -95,8 +96,14 @@ export default new Vuex.Store({
           return false;
         });
     },
-    sendPasswordResetEmail({ commit }, email) {
-      Firebase.auth.sendPasswordResetEmail(email);
+    async sendPasswordResetEmail({ commit }, email): Promise<SendPasswordResetEmailEnum> {
+      return Firebase.auth.sendPasswordResetEmail(email)
+      .then(() => {
+        return SendPasswordResetEmailEnum.Success;
+      })
+      .catch((error) => {
+        return error.code as SendPasswordResetEmailEnum;
+      });
     },
   },
   getters: {
