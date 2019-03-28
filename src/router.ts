@@ -13,9 +13,9 @@ export default new Router({
       component: () => import('./views/Home.vue'),
     },
     {
-      path: '/passwordReset',
-      name: 'passwordReset',
-      component: () => import('./views/PasswordReset.vue'),
+      path: '/confirmPasswordReset',
+      name: 'confirmPasswordReset',
+      component: () => import('./views/ConfirmPasswordReset.vue'),
     },
     {
       path: '/signIn',

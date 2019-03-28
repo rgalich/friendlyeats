@@ -51,13 +51,10 @@ import { Component, Vue } from 'vue-property-decorator';
 import Firebase from '../firebaseConfig';
 import { Getter, Action } from 'vuex-class';
 import { UserModel } from '@/models/userModel';
-import { ConfirmPasswordResetModel } from '@/models/confirmPasswordResetModel';
 
 @Component
 export default class ConfirmPasswordReset extends Vue {
-  @Action private updatePassword!: any;
-
-  @Action private signInWithEmailLink!: any;
+  @Action private confirmPasswordReset!: any;
 
   private form!: any;
 
@@ -65,19 +62,12 @@ export default class ConfirmPasswordReset extends Vue {
     this.form = this.$form.createForm(this);
   }
 
-  private async created() {
-    if (!(await this.signInWithEmailLink())) {
-      this.$router.push({ name: 'expiredLink' })
-    };
-  }
-
   private async handleSubmit(e: any) {
     e.preventDefault();
     this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
-        if (await this.updatePassword(values.password)) {
-          this.$router.push({ name: 'home' });
-        };
+        const response: boolean = await this.confirmPasswordReset(values.password);
+        console.log(response);
       }
     });
   }

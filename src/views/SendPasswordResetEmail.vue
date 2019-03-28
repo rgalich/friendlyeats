@@ -3,7 +3,7 @@
     <a-layout-content>
       <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
         <a-col :span="8">
-          <a-card title="S'inscrire">
+          <a-card title="Mot de passe oublié">
             <a-form :form="form" @submit="handleSubmit">
               <transition
                 enter-active-class="animated fadeInDown"

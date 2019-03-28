@@ -10,16 +10,18 @@ import { ActionCodeInfoEnum } from '@/enums/actionCodeInfoEnum';
 export default class ApplyActionCode extends Vue {
   @Action private applyActionCode!: any;
 
-  private async mounted() {
+  private async created() {
     const code = this.$route.query.oobCode;
-    console.log(code);
     const applyActionCode: ActionCodeInfoEnum = await this.applyActionCode(
       code
     );
-    debugger
     switch (applyActionCode) {
       case ActionCodeInfoEnum.VerifyEmail: {
         this.$router.push({ name: 'verifyEmail' })
+        break;
+      }
+      case ActionCodeInfoEnum.PasswordReset: {
+        this.$router.push({ name: 'confirmPasswordReset' })
         break;
       }
       default: {

@@ -2,7 +2,7 @@
   <a-layout>
     <a-layout-content>
       <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
-        <a-col :span="8">
+        <a-col>
           <a-card title="S'inscrire">
             <a-form :form="form" @submit="handleSubmit">
               <transition
