@@ -3,7 +3,7 @@
     <a-layout-content>
       <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
         <a-col :span="8">
-          <a-card title="Mot de passe oublié">
+          <a-card title="Réinitialiser le mot de passe">
             <a-form :form="form" @submit="handleSubmit">
               <transition
                 enter-active-class="animated fadeInDown"
@@ -11,20 +11,13 @@
               >
                 <a-form-item v-if="userNotFound">
                   <a-alert
-                    message="L'adresse mail indiquée n'est associée à aucun compte."
+                    :message="`Aucun compte ne correspond à ${email}.`"
+                    description="Peut-être avez-vous utilisé une adresse e-mail différente/incorrecte lors de votre inscription."
                     type="error"
                     showIcon
                     closable
                     @close="userNotFound = false"
                   >
-                    <template slot="description">
-                      <a-row>
-                        <a-col>
-                          Vous pouvez vous inscrire 
-                          <a @click="$router.push({ name: 'signUp' })">ici</a>.
-                        </a-col>
-                      </a-row>
-                    </template>
                   </a-alert>
                 </a-form-item>
               </transition>
@@ -59,9 +52,11 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit">Envoyer</a-button>
+                <a-button block type="primary" html-type="submit">Envoyer le lien de réinitialisation</a-button>
               </a-form-item>
             </a-form>
+            <a-divider type="horizontal" />
+            <a @click="$router.push({ name: 'signIn' })">Retour à l'écran de connexion</a>
           </a-card>
         </a-col>
       </a-row>
@@ -81,6 +76,7 @@ export default class SignUp extends Vue {
   private form!: any;
   private isSuccess: boolean = false;
   private userNotFound: boolean = false;
+  private email: string = '';
 
   @Action private sendPasswordResetEmail!: any;
 
@@ -93,8 +89,9 @@ export default class SignUp extends Vue {
     this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
         const response: SendPasswordResetEmailEnum = await this.sendPasswordResetEmail(
-          values.email
+          values.email,
         );
+        this.email = values.email;
         switch (response) {
           case SendPasswordResetEmailEnum.Success: {
             this.userNotFound = false;
@@ -120,6 +117,6 @@ export default class SignUp extends Vue {
       callback('Les mots de passe doivent-être identiques.');
     }
     callback();
-  };
+  }
 }
 </script>

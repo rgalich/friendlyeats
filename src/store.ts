@@ -86,14 +86,21 @@ export default new Vuex.Store({
           return ActionCodeInfoEnum.Error;
         });
     },
-    signInWithEmailAndPassword({ commit }, userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel) {
-      Firebase.auth.signInWithEmailAndPassword(
+    async signInWithEmailAndPassword(
+      { commit },
+      userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel,
+    ): Promise<boolean> {
+      return await Firebase.auth.signInWithEmailAndPassword(
         userWithEmailAndPasswordModel.email,
         userWithEmailAndPasswordModel.password,
       )
-        .then((error) => {
-          console.log(error);
-        });
+      .then(() => {
+        commit('UPDATE_IS_CONNECT', true);
+        return true;
+      })
+      .catch((error) => {
+        return false;
+      });
     },
     async confirmPasswordReset({ commit, getters }, newPassword: string): Promise<boolean> {
       if (!getters.code) { return false; }
@@ -128,6 +135,12 @@ export default new Vuex.Store({
       })
       .catch((error) => {
         return error.code as SendPasswordResetEmailEnum;
+      });
+    },
+    currentUser({ commit }) {
+      Firebase.auth.onAuthStateChanged((user) => {
+        commit('UPDATE_USER', user);
+        commit('UPDATE_IS_CONNECT', !user);
       });
     },
   },

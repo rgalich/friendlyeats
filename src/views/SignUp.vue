@@ -2,7 +2,7 @@
   <a-layout>
     <a-layout-content>
       <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
-        <a-col>
+        <a-col :span="8">
           <a-card title="S'inscrire">
             <a-form :form="form" @submit="handleSubmit">
               <transition
@@ -93,9 +93,11 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit">S'inscrire</a-button>
+                <a-button block type="primary" html-type="submit">S'inscrire</a-button>
               </a-form-item>
             </a-form>
+            <a-divider type="horizontal" />
+            Vous avez déjà un compte Airbnb ? <a @click="$router.push({ name: 'signIn' })">Connexion</a>
           </a-card>
         </a-col>
       </a-row>
@@ -129,24 +131,25 @@ export default class SignUp extends Vue {
         const response: CreateUserWithEmailAndPasswordEnum = await this.createUserWithEmailAndPassword(
           UserWithEmailAndPasswordModel.toClass({
             email: values.email,
-            password: values.password
-          })
+            password: values.password,
+          }),
         );
-        switch(response) { 
-          case CreateUserWithEmailAndPasswordEnum.Success: { 
+        switch (response) {
+          case CreateUserWithEmailAndPasswordEnum.Success: {
             await this.sendEmailVerification();
             this.isEmailAlreadyInUse = false;
             this.isSuccess = true;
-            break; 
-          } 
-          case CreateUserWithEmailAndPasswordEnum.EmailAlreadyInUse: { 
+            this.form.resetFields();
+            break;
+          }
+          case CreateUserWithEmailAndPasswordEnum.EmailAlreadyInUse: {
               this.isEmailAlreadyInUse = true;
               this.isSuccess = false;
-              break; 
-          } 
-          default: { 
               break;
-          } 
+          }
+          default: {
+              break;
+          }
         }
       }
     });
@@ -158,6 +161,6 @@ export default class SignUp extends Vue {
       callback('Les mots de passe doivent-être identiques.');
     }
     callback();
-  };
+  }
 }
 </script>

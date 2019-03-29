@@ -5,6 +5,21 @@
         <a-col :span="8">
           <a-card title="Se connecter">
             <a-form :form="form" @submit="handleSubmit">
+              <transition
+                enter-active-class="animated fadeInDown"
+                leave-active-class="animated fadeOutDown"
+              >
+                <a-form-item v-if="isInvalid">
+                  <a-alert
+                    message="L'adresse e-mail ou le mot de passe que vous avez entré n'est pas valide. Réessayez."
+                    type="error"
+                    showIcon
+                    closable
+                    @close="isInvalid = false"
+                  >
+                  </a-alert>
+                </a-form-item>
+              </transition>
               <a-form-item>
                 <a-input
                   placeholder="Email"
@@ -35,9 +50,12 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit">Se connecter</a-button>
+                <a-button block type="primary" html-type="submit">Se connecter</a-button>
               </a-form-item>
             </a-form>
+            <a @click="$router.push({ name: 'sendPasswordResetEmail' })">Mot de passe oublié ?</a>
+            <a-divider type="horizontal" />
+            Vous n'avez pas de compte ? <a @click="$router.push({ name: 'signUp' })">Inscription</a>
           </a-card>
         </a-col>
       </a-row>
@@ -55,6 +73,7 @@ import { UserWithEmailAndPasswordModel } from '@/models/userWithEmailAndPassword
 @Component
 export default class SignIn extends Vue {
   private form!: any;
+  private isInvalid: boolean = false;
 
   @Action private signInWithEmailAndPassword!: any;
 
@@ -64,9 +83,17 @@ export default class SignIn extends Vue {
 
   private handleSubmit(e: any) {
     e.preventDefault();
-    this.form.validateFields((err: any, values: any) => {
+    this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
-        this.signInWithEmailAndPassword(UserWithEmailAndPasswordModel.toClass({ email: values.email, password: values.password }));
+        const response = await this.signInWithEmailAndPassword(
+          UserWithEmailAndPasswordModel.toClass({ email: values.email, password: values.password }),
+        );
+        if (response) {
+          this.$message.success('Vous ètes connecté.', 10);
+          this.$router.push({ name: 'home' });
+        } else {
+          this.isInvalid = true;
+        }
       }
     });
   }

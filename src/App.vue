@@ -18,10 +18,10 @@ import { Action } from 'vuex-class';
 
 @Component
 export default class App extends Vue {
-  @Action private getUser!: any;
+  @Action private currentUser!: any;
 
   private mounted() {
-    this.getUser();
+    this.currentUser();
   }
 }
 </script>

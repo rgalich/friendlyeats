@@ -13,19 +13,21 @@ export default class ApplyActionCode extends Vue {
   private async created() {
     const code = this.$route.query.oobCode;
     const applyActionCode: ActionCodeInfoEnum = await this.applyActionCode(
-      code
+      code,
     );
     switch (applyActionCode) {
       case ActionCodeInfoEnum.VerifyEmail: {
-        this.$router.push({ name: 'verifyEmail' })
+        this.$message.success('Votre compte est vérifié. Vous pouvez vous connecter.', 10);
+        this.$router.push({ name: 'signIn' });
         break;
       }
       case ActionCodeInfoEnum.PasswordReset: {
-        this.$router.push({ name: 'confirmPasswordReset' })
+        this.$router.push({ name: 'confirmPasswordReset' });
         break;
       }
       default: {
-        this.$router.push({ name: 'expiredLink' })
+        this.$message.error('Le lien est expiré ou  à déjà été utilisé.', 10);
+        this.$router.push({ name: 'signIn' });
         break;
       }
     }

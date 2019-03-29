@@ -5,6 +5,21 @@
         <a-col :span="8">
           <a-card title="Mot de passe oublié">
             <a-form :form="form" @submit="handleSubmit">
+              <transition
+                enter-active-class="animated fadeInDown"
+                leave-active-class="animated fadeOutDown"
+              >
+                <a-form-item v-if="isError">
+                  <a-alert
+                    message="Une erreur est survenue. Veuillez réessayer plus tard."
+                    type="error"
+                    showIcon
+                    closable
+                    @close="isError = false"
+                  >
+                  </a-alert>
+                </a-form-item>
+              </transition>
               <a-form-item>
                 <a-input
                   type="password"
@@ -36,7 +51,7 @@
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit">Modifier</a-button>
+                <a-button block type="primary" html-type="submit">Modifier</a-button>
               </a-form-item>
             </a-form>
           </a-card>
@@ -55,6 +70,7 @@ import { UserModel } from '@/models/userModel';
 @Component
 export default class ConfirmPasswordReset extends Vue {
   @Action private confirmPasswordReset!: any;
+  private isError: boolean = false;
 
   private form!: any;
 
@@ -67,7 +83,12 @@ export default class ConfirmPasswordReset extends Vue {
     this.form.validateFields(async (err: any, values: any) => {
       if (!err) {
         const response: boolean = await this.confirmPasswordReset(values.password);
-        console.log(response);
+        if (response) {
+          this.$message.success('Votre mot de passe est modifié. Vous pouvez vous connecter.', 10);
+          this.$router.push({ name: 'signIn' });
+        } else {
+          this.isError = true;
+        }
       }
     });
   }
