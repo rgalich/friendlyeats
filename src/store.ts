@@ -5,6 +5,7 @@ import Firebase from './firebaseConfig';
 import { ActionCodeInfoEnum } from './enums/actionCodeInfoEnum';
 import { CreateUserWithEmailAndPasswordEnum } from './enums/createUserWithEmailAndPasswordEnum';
 import { SendPasswordResetEmailEnum } from './enums/sendPasswordResetEmailEnum';
+import { SignInWithEmailAndPasswordEnum } from './enums/signInWithEmailAndPasswordEnum';
 
 Vue.use(Vuex);
 
@@ -89,17 +90,21 @@ export default new Vuex.Store({
     async signInWithEmailAndPassword(
       { commit },
       userWithEmailAndPasswordModel: UserWithEmailAndPasswordModel,
-    ): Promise<boolean> {
+    ): Promise<SignInWithEmailAndPasswordEnum> {
       return await Firebase.auth.signInWithEmailAndPassword(
         userWithEmailAndPasswordModel.email,
         userWithEmailAndPasswordModel.password,
       )
       .then(() => {
-        commit('UPDATE_IS_CONNECT', true);
-        return true;
+        if (Firebase.auth.currentUser!.emailVerified) {
+          commit('UPDATE_IS_CONNECT', true);
+          return SignInWithEmailAndPasswordEnum.Success;
+        } else {
+          return SignInWithEmailAndPasswordEnum.UnverifiedEmail;
+        }
       })
       .catch((error) => {
-        return false;
+        return error.code as SignInWithEmailAndPasswordEnum;
       });
     },
     async confirmPasswordReset({ commit, getters }, newPassword: string): Promise<boolean> {
@@ -140,7 +145,7 @@ export default new Vuex.Store({
     currentUser({ commit }) {
       Firebase.auth.onAuthStateChanged((user) => {
         commit('UPDATE_USER', user);
-        commit('UPDATE_IS_CONNECT', !user);
+        commit('UPDATE_IS_CONNECT', !!user);
       });
     },
   },

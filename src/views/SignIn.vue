@@ -20,6 +20,26 @@
                   </a-alert>
                 </a-form-item>
               </transition>
+              <transition
+                enter-active-class="animated fadeInDown"
+                leave-active-class="animated fadeOutDown"
+              >
+                <a-form-item v-if="unverifiedEmail">
+                  <a-alert
+                    message="Merci de confirmer votre adresse mail."
+                    type="error"
+                    showIcon
+                    closable
+                    @close="unverifiedEmail = false"
+                  >
+                  <template slot="description">
+                      <a-row>
+                        <a-col :span="24"><a @click="sendEmailVerification">Renvoyer le mail de validation</a>.</a-col>
+                      </a-row>
+                    </template>
+                  </a-alert>
+                </a-form-item>
+              </transition>
               <a-form-item>
                 <a-input
                   placeholder="Email"
@@ -69,13 +89,16 @@ import Firebase from '../firebaseConfig';
 import { Getter, Action } from 'vuex-class';
 import { UserModel } from '@/models/userModel';
 import { UserWithEmailAndPasswordModel } from '@/models/userWithEmailAndPasswordModel';
+import { SignInWithEmailAndPasswordEnum } from '@/enums/signInWithEmailAndPasswordEnum';
 
 @Component
 export default class SignIn extends Vue {
   private form!: any;
   private isInvalid: boolean = false;
+  private unverifiedEmail: boolean = false;
 
   @Action private signInWithEmailAndPassword!: any;
+  @Action private sendEmailVerification!: any;
 
   private beforeCreate() {
     this.form = this.$form.createForm(this);
@@ -88,11 +111,27 @@ export default class SignIn extends Vue {
         const response = await this.signInWithEmailAndPassword(
           UserWithEmailAndPasswordModel.toClass({ email: values.email, password: values.password }),
         );
+        switch (response) {
+          case SignInWithEmailAndPasswordEnum.Success: {
+            this.$message.success('Vous ètes connecté.', 10);
+            this.$router.push({ name: 'home' });
+            break;
+          }
+          case SignInWithEmailAndPasswordEnum.UnverifiedEmail: {
+            this.isInvalid = false;
+            this.unverifiedEmail = true;
+            break;
+          }
+          default: {
+            this.isInvalid = true;
+            this.unverifiedEmail = false;
+            break;
+          }
+        }
         if (response) {
-          this.$message.success('Vous ètes connecté.', 10);
-          this.$router.push({ name: 'home' });
+          
         } else {
-          this.isInvalid = true;
+          
         }
       }
     });
