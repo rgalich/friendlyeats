@@ -32,6 +32,7 @@ Vue.component(Input.name, Input);
 Vue.component(Layout.name, Layout);
 Vue.component(Layout.Header.name, Layout.Header);
 Vue.component(Layout.Content.name, Layout.Content);
+Vue.component(Layout.Footer.name, Layout.Footer);
 Vue.component(Card.name, Card);
 Vue.component(Row.name, Row);
 Vue.component(Col.name, Col);

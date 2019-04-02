@@ -1,7 +1,7 @@
 <template>
-  <a-layout>
+  <a-layout style="height: 100vh">
     <a-layout-content>
-      <a-row style="height: 100vh" type="flex" justify="space-around" align="middle">
+      <a-row style="height: 100%" type="flex" justify="space-around" align="middle">
         <a-col :span="8">
           <a-card title="Se connecter">
             <a-form :form="form" @submit="handleSubmit">
@@ -127,11 +127,6 @@ export default class SignIn extends Vue {
             this.unverifiedEmail = false;
             break;
           }
-        }
-        if (response) {
-          
-        } else {
-          
         }
       }
     });
