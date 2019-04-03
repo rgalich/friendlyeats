@@ -1,0 +1,29 @@
+<template>
+  <a-layout style="height: 100vh">
+    <a-layout-header>
+      <a-menu theme="dark" mode="horizontal" :style="{ lineHeight: '64px', float: 'right' }">
+        <a-menu-item v-if="!isConnect" @click="$router.push({ name: 'signIn' })">Se connecter</a-menu-item>
+        <a-menu-item v-if="isConnect" @click="signOut">Se déconnecter</a-menu-item>
+        <a-menu-item v-if="!isConnect" @click="$router.push({ name: 'signUp' })">S'inscrire</a-menu-item>
+      </a-menu>
+    </a-layout-header>
+    <a-layout-content :style="{ padding: '24px' }">
+      <div :style="{ padding: '24px', background: '#FFFFFF', height: '100%' }">
+        <router-view/>
+      </div>
+    </a-layout-content>
+    <a-layout-footer style="textAlign: center">Ant Design ©2018 Created by Ant UED</a-layout-footer>
+  </a-layout>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import { Getter, Action } from 'vuex-class';
+
+@Component
+export default class MainLayout extends Vue {
+  @Getter private isConnect!: boolean;
+
+  @Action private signOut!: any;
+}
+</script>

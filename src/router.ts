@@ -9,43 +9,36 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('./views/Home.vue'),
+      component: () => import('./layouts/MainLayout.vue'),
     },
     {
-      path: '/confirmPasswordReset',
-      name: 'confirmPasswordReset',
-      component: () => import('./views/ConfirmPasswordReset.vue'),
-    },
-    {
-      path: '/signIn',
-      name: 'signIn',
-      component: () => import('./views/SignIn.vue'),
-    },
-    {
-      path: '/signUp',
-      name: 'signUp',
-      component: () => import('./views/SignUp.vue'),
-    },
-    {
-      path: '/expiredLink',
-      name: 'expiredLink',
-      component: () => import('./views/ExpiredLink.vue'),
+      path: '/',
+      component: () => import('./layouts/CenteredLayout.vue'),
+      children: [{
+        path: '/signIn',
+        name: 'signIn',
+        component: () => import('./components/SignIn.vue'),
+      },
+      {
+        path: '/signUp',
+        name: 'signUp',
+        component: () => import('./components/SignUp.vue'),
+      },
+      {
+        path: '/confirmPasswordReset',
+        name: 'confirmPasswordReset',
+        component: () => import('./components/ConfirmPasswordReset.vue'),
+      },
+      {
+        path: '/sendPasswordResetEmail',
+        name: 'sendPasswordResetEmail',
+        component: () => import('./components/SendPasswordResetEmail.vue'),
+      }],
     },
     {
       path: '/applyActionCode',
       name: 'applyActionCode',
       component: () => import('./views/ApplyActionCode.vue'),
-    },
-    {
-      path: '/verifyEmail',
-      name: 'verifyEmail',
-      component: () => import('./views/VerifyEmail.vue'),
-    },
-    {
-      path: '/sendPasswordResetEmail',
-      name: 'sendPasswordResetEmail',
-      component: () => import('./views/SendPasswordResetEmail.vue'),
     },
   ],
 });
