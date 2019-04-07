@@ -50,7 +50,7 @@ Vue.config.productionTip = false;
 import 'animate.css';
 
 new Vue({
-  router,
-  store,
   render: (h) => h(App),
+  store,
+  router,
 }).$mount('#app');

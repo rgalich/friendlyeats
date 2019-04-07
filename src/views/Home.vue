@@ -1,14 +1,6 @@
 <template>
-  <a-layout style="height: 100vh">
-    <a-layout-header>
-      <a-menu theme="dark" mode="horizontal" :style="{ lineHeight: '64px', float: 'right' }">
-        <a-menu-item v-if="!isConnect" @click="$router.push({ name: 'signIn' })">Se connecter</a-menu-item>
-        <a-menu-item v-if="isConnect" @click="signOut">Se déconnecter</a-menu-item>
-        <a-menu-item v-if="!isConnect" @click="$router.push({ name: 'signUp' })">S'inscrire</a-menu-item>
-      </a-menu>
-    </a-layout-header>
-    <a-layout-content :style="{ padding: '24px' }">
-      <div :style="{ padding: '24px', background: '#FFFFFF', height: '100%' }">
+
+      <div style="height: 100%">
         <div class="game">
           <div class="board blink">
             <div
@@ -50,32 +42,182 @@
           </div>
         </div>
       </div>
-    </a-layout-content>
-    <a-layout-footer style="textAlign: center">Ant Design ©2018 Created by Ant UED</a-layout-footer>
-  </a-layout>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import { Getter, Action } from 'vuex-class';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 @Component
 export default class Home extends Vue {
-  @Getter private isConnect!: boolean;
+    private ticTacToc = [
+        {
+            id: 1,
+            positionX: 'left',
+            positionY: 'top',
+            value: '',
+        },
+        {
+            id: 2,
+            positionX: null,
+            positionY: 'top',
+            value: '',
+        },
+        {
+            id: 3,
+            positionX: 'right',
+            positionY: 'top',
+            value: '',
+        },
+        {
+            id: 4,
+            positionX: 'left',
+            positionY: null,
+            value: '',
+        },
+        {
+            id: 5,
+            positionX: null,
+            positionY: null,
+            value: '',
+        },
+        {
+            id: 6,
+            positionX: 'right',
+            positionY: null,
+            value: '',
+        },
+        {
+            id: 7,
+            positionX: 'left',
+            positionY: 'bottom',
+            value: '',
+        },
+        {
+            id: 8,
+            positionX: null,
+            positionY: 'bottom',
+            value: '',
+        },
+        {
+            id: 9,
+            positionX: 'right',
+            positionY: 'bottom',
+            value: '',
+        },
+    ];
 
-  @Action private signOut!: any;
-}
-</script>
+    private win = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+        [1, 4, 7],
+        [2, 5, 8],
+        [3, 6, 9],
+        [1, 5, 9],
+        [3, 5, 7],
+    ];
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import { Getter, Action } from 'vuex-class';
+    private winX = 0;
 
-@Component
-export default class Home extends Vue {
-  @Getter private isConnect!: boolean;
+    private winO = 0;
 
-  @Action private signOut!: any;
+    private draw = 0;
+
+    private turn = 'o';
+
+    private turnNumber = 0;
+
+    private turnMax = 9;
+
+    private isWinning = false;
+
+    private isMultiPlayer = false;
+
+    @Watch('turnNumber')
+    private onTurnNumberChanged(newVal: number) {
+        if (newVal) {
+            let isWinning = false;
+            this.win.forEach((e) => {
+                const winWithValue = this.ticTacToc.filter((f) => e.includes(f.id))
+                    .map((f) => f.value)
+                    .filter((v, i, a) => a.indexOf(v) === i);
+
+                if (winWithValue.length === 1 && !winWithValue.includes('')) {
+                    isWinning = true;
+                }
+            });
+
+            this.isWinning = isWinning;
+
+            if (this.isWinning) {
+                switch (this.turn) {
+                    case 'o': {
+                        this.winO++;
+                        break;
+                    }
+                    case 'x': {
+                        this.winX++;
+                        break;
+                    }
+                }
+            } else if (this.turnNumber === this.turnMax) {
+                this.draw++;
+            }
+
+            if (this.isWinning || this.turnNumber === this.turnMax) {
+                setTimeout(() => {
+                    this.removePart();
+                }, 1000);
+                return;
+            }
+
+            this.turn = this.turn === 'o' ? 'x' : 'o';
+        }
+    }
+
+    @Watch('isMultiPlayer')
+    private onIsMultiPlayerChanged() {
+        this.removePart(true);
+    }
+
+    private play(item: any) {
+        if (item.value || this.isWinning || ( this.turn !== 'o' && !this.isMultiPlayer)) { return; }
+
+        item.value = this.turn;
+
+        this.turnNumber++;
+
+        if (this.isMultiPlayer || (this.isWinning && this.turnNumber === this.turnMax)) { return; }
+
+        setTimeout(() => { this.autoPlay(); }, 1000);
+    }
+
+    private autoPlay() {
+        if (this.isWinning) { return; }
+
+        const emptyBoxList = this.ticTacToc.filter((e) => !e.value);
+
+        if (!emptyBoxList.length) { return; }
+
+        emptyBoxList[Math.floor(Math.random() * emptyBoxList.length)].value = this.turn;
+
+        this.turnNumber++;
+    }
+
+    private removePart(withScore: boolean = false) {
+        this.ticTacToc.map((e) => {
+            e.value = '';
+        });
+        this.turn = 'o';
+        this.isWinning = false;
+        this.turnNumber = 0;
+
+        if (!withScore) { return; }
+
+        this.winX = 0;
+        this.winO = 0;
+        this.draw = 0;
+    }
 }
 </script>
 

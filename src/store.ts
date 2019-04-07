@@ -96,8 +96,10 @@ export default new Vuex.Store({
         userWithEmailAndPasswordModel.password,
       )
       .then(() => {
-        if (Firebase.auth.currentUser!.emailVerified) {
+        const user = Firebase.auth.currentUser;
+        if (user!.emailVerified) {
           commit('UPDATE_IS_CONNECT', true);
+          commit('UPDATE_USER', user);
           return SignInWithEmailAndPasswordEnum.Success;
         } else {
           return SignInWithEmailAndPasswordEnum.UnverifiedEmail;
@@ -143,10 +145,9 @@ export default new Vuex.Store({
       });
     },
     currentUser({ commit }) {
-      Firebase.auth.onAuthStateChanged((user) => {
-        commit('UPDATE_USER', user);
-        commit('UPDATE_IS_CONNECT', !!user);
-      });
+      const user = Firebase.auth.currentUser;
+      commit('UPDATE_USER', user);
+      commit('UPDATE_IS_CONNECT', !!user);
     },
   },
   getters: {

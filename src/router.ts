@@ -1,19 +1,32 @@
 import Vue from 'vue';
+import store from '@/store';
 import Router from 'vue-router';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
       path: '/',
       component: () => import('./layouts/MainLayout.vue'),
+      children: [{
+        path: '',
+        name: 'home',
+        component: () => import('./views/Home.vue'),
+      }],
     },
     {
       path: '/',
       component: () => import('./layouts/CenteredLayout.vue'),
+      beforeEnter: (to, from, next) => {
+        if (store.getters.isConnect) {
+          next({ name: 'home' });
+        } else {
+          next();
+        }
+      },
       children: [{
         path: '/signIn',
         name: 'signIn',
@@ -42,3 +55,5 @@ export default new Router({
     },
   ],
 });
+
+export default router;
