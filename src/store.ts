@@ -6,6 +6,7 @@ import { ActionCodeInfoEnum } from './enums/actionCodeInfoEnum';
 import { CreateUserWithEmailAndPasswordEnum } from './enums/createUserWithEmailAndPasswordEnum';
 import { SendPasswordResetEmailEnum } from './enums/sendPasswordResetEmailEnum';
 import { SignInWithEmailAndPasswordEnum } from './enums/signInWithEmailAndPasswordEnum';
+import { GameModel } from './models/gameModel';
 
 Vue.use(Vuex);
 
@@ -148,6 +149,18 @@ export default new Vuex.Store({
       const user = Firebase.auth.currentUser;
       commit('UPDATE_USER', user);
       commit('UPDATE_IS_CONNECT', !!user);
+    },
+    addGame({commit, getters}, gameModel: GameModel) {
+      gameModel.userId = getters.user ? getters.user.uid : null;
+      gameModel.date = Firebase.firestore.Timestamp.now();
+
+      Firebase.db.collection('game').add(gameModel.toPlan())
+      .then((docRef) => {
+          console.log("Document written with ID: ", docRef.id);
+      })
+      .catch((error) => {
+          console.error("Error adding document: ", error);
+      });
     },
   },
   getters: {

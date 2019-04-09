@@ -46,9 +46,13 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Getter, Action } from 'vuex-class';
+import { GameModel } from '../models/gameModel';
 
 @Component
 export default class Home extends Vue {
+    @Action private addGame!: any;
+
     private ticTacToc = [
         {
             id: 1,
@@ -136,6 +140,12 @@ export default class Home extends Vue {
     @Watch('turnNumber')
     private onTurnNumberChanged(newVal: number) {
         if (newVal) {
+            if (newVal === 1) {
+              const gameModel = new GameModel();
+              gameModel.isMultiPlayer = this.isMultiPlayer;
+              this.addGame(gameModel);
+            }
+
             let isWinning = false;
             this.win.forEach((e) => {
                 const winWithValue = this.ticTacToc.filter((f) => e.includes(f.id))
