@@ -48,10 +48,13 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Action } from 'vuex-class';
 import { GameModel } from '../models/gameModel';
+import { TurnGameModel } from '../models/turnGameModel';
 
 @Component
 export default class Home extends Vue {
     @Action private addGame!: any;
+    @Action private setGame!: any;
+    @Action private addTurnGame!: any;
 
     private ticTacToc = [
         {
@@ -127,7 +130,7 @@ export default class Home extends Vue {
 
     private draw = 0;
 
-    private turn = 'o';
+    private turn: 'o' | 'x' = 'o';
 
     private turnNumber = 0;
 
@@ -138,13 +141,18 @@ export default class Home extends Vue {
     private isMultiPlayer = false;
 
     @Watch('turnNumber')
-    private onTurnNumberChanged(newVal: number) {
+    private async onTurnNumberChanged(newVal: number) {
         if (newVal) {
             if (newVal === 1) {
               const gameModel = new GameModel();
               gameModel.isMultiPlayer = this.isMultiPlayer;
-              this.addGame(gameModel);
+              await this.addGame(gameModel);
             }
+
+            const turnGameModel = new TurnGameModel();
+            turnGameModel.turnNumber = newVal;
+            turnGameModel.turn = this.turn;
+            this.addTurnGame(turnGameModel);
 
             let isWinning = false;
             this.win.forEach((e) => {
@@ -160,6 +168,10 @@ export default class Home extends Vue {
             this.isWinning = isWinning;
 
             if (this.isWinning) {
+                const gameModel = new GameModel();
+                gameModel.winner = this.turn;
+                gameModel.turnNumber = newVal;
+                this.setGame(gameModel);
                 switch (this.turn) {
                     case 'o': {
                         this.winO++;

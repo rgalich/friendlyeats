@@ -7,6 +7,7 @@ import { CreateUserWithEmailAndPasswordEnum } from './enums/createUserWithEmailA
 import { SendPasswordResetEmailEnum } from './enums/sendPasswordResetEmailEnum';
 import { SignInWithEmailAndPasswordEnum } from './enums/signInWithEmailAndPasswordEnum';
 import { GameModel } from './models/gameModel';
+import { TurnGameModel } from './models/turnGameModel';
 
 Vue.use(Vuex);
 
@@ -15,6 +16,7 @@ export default new Vuex.Store({
     isConnect: false,
     code: '',
     user: null,
+    game: new GameModel(),
   },
   mutations: {
     UPDATE_IS_CONNECT(state, payload: boolean) {
@@ -25,6 +27,9 @@ export default new Vuex.Store({
     },
     UPDATE_CODE(state, payload: string) {
       state.code = payload;
+    },
+    UPDATE_GAME(state, payload: GameModel) {
+      state.game = payload;
     },
   },
   actions: {
@@ -150,13 +155,42 @@ export default new Vuex.Store({
       commit('UPDATE_USER', user);
       commit('UPDATE_IS_CONNECT', !!user);
     },
-    addGame({commit, getters}, gameModel: GameModel) {
+    async addGame({commit, getters}, gameModel: GameModel): Promise<boolean> {
       gameModel.userId = getters.user ? getters.user.uid : null;
       gameModel.date = Firebase.firestore.Timestamp.now();
 
-      Firebase.db.collection('game').add(gameModel.toPlan())
+      return Firebase.db.collection('game').add(gameModel.toPlan())
       .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id);
+        gameModel.id = docRef.id;
+        commit('UPDATE_GAME', gameModel);
+        return true;
+      })
+      .catch((error) => {
+          return false;
+      });
+    },
+    async setGame({commit, getters}, gameModel: GameModel): Promise<boolean> {
+      const game: GameModel = getters.game;
+      game.turnNumber =  gameModel.turnNumber;
+      game.winner = gameModel.winner;
+
+      return Firebase.db.collection('game').doc(game.id).set(game.toPlan())
+      .then(() => {
+        commit('UPDATE_GAME', game);
+        return true;
+      })
+      .catch((error) => {
+          return false;
+      });
+    },
+    addTurnGame({commit, getters}, turnGameModel: TurnGameModel) {
+      turnGameModel.userId = getters.user ? getters.user.uid : null;
+      turnGameModel.date = Firebase.firestore.Timestamp.now();
+      turnGameModel.gameId = getters.game.id;
+
+      Firebase.db.collection('turnGame').add(turnGameModel.toPlan())
+      .then((docRef) => {
+        turnGameModel.id = docRef.id;
       })
       .catch((error) => {
           console.error("Error adding document: ", error);
@@ -167,5 +201,6 @@ export default new Vuex.Store({
     isConnect: (state) => state.isConnect,
     user: (state) => state.user,
     code: (state) => state.code,
+    game: (state) => state.game,
   },
 });
