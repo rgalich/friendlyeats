@@ -11,16 +11,18 @@ export class GameModel {
 
   public userId!: string;
 
-  public toPlan() {
-    return JSON.parse(JSON.stringify(
-      {
-        id: this.id,
-        turnNumber: this.turnNumber,
-        winner: this.winner,
-        date: this.date,
-        isMultiPlayer: this.isMultiPlayer,
-        userId: this.userId,
-      }
-    ));
+  public toAddGame() {
+    return {
+      date: this.date,
+      isMultiPlayer: this.isMultiPlayer,
+      userId: this.userId,
+    };
+  }
+
+  public toSetGame() {
+    return {
+      turnNumber: this.turnNumber,
+      winner: this.winner,
+    };
   }
 }

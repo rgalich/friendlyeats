@@ -74,13 +74,13 @@ export default new Vuex.Store({
             }
             case ActionCodeInfoEnum.PasswordReset: {
               return await Firebase.auth.verifyPasswordResetCode(code)
-              .then(() => {
-                commit('UPDATE_CODE', code);
-                return ActionCodeInfoEnum.PasswordReset;
-              })
-              .catch((error) => {
-                return ActionCodeInfoEnum.Error;
-              });
+                .then(() => {
+                  commit('UPDATE_CODE', code);
+                  return ActionCodeInfoEnum.PasswordReset;
+                })
+                .catch((error) => {
+                  return ActionCodeInfoEnum.Error;
+                });
               break;
             }
             default: {
@@ -101,19 +101,19 @@ export default new Vuex.Store({
         userWithEmailAndPasswordModel.email,
         userWithEmailAndPasswordModel.password,
       )
-      .then(() => {
-        const user = Firebase.auth.currentUser;
-        if (user!.emailVerified) {
-          commit('UPDATE_IS_CONNECT', true);
-          commit('UPDATE_USER', user);
-          return SignInWithEmailAndPasswordEnum.Success;
-        } else {
-          return SignInWithEmailAndPasswordEnum.UnverifiedEmail;
-        }
-      })
-      .catch((error) => {
-        return error.code as SignInWithEmailAndPasswordEnum;
-      });
+        .then(() => {
+          const user = Firebase.auth.currentUser;
+          if (user!.emailVerified) {
+            commit('UPDATE_IS_CONNECT', true);
+            commit('UPDATE_USER', user);
+            return SignInWithEmailAndPasswordEnum.Success;
+          } else {
+            return SignInWithEmailAndPasswordEnum.UnverifiedEmail;
+          }
+        })
+        .catch((error) => {
+          return error.code as SignInWithEmailAndPasswordEnum;
+        });
     },
     async confirmPasswordReset({ commit, getters }, newPassword: string): Promise<boolean> {
       if (!getters.code) { return false; }
@@ -122,14 +122,14 @@ export default new Vuex.Store({
         getters.code,
         newPassword,
       )
-      .then(() => {
-        commit('UPDATE_CODE', '');
-        return true;
-      })
-      .catch((error) => {
-        commit('UPDATE_CODE', '');
-        return false;
-      });
+        .then(() => {
+          commit('UPDATE_CODE', '');
+          return true;
+        })
+        .catch((error) => {
+          commit('UPDATE_CODE', '');
+          return false;
+        });
     },
     async signOut({ commit }): Promise<boolean> {
       return await Firebase.auth.signOut()
@@ -143,58 +143,58 @@ export default new Vuex.Store({
     },
     async sendPasswordResetEmail({ commit }, email): Promise<SendPasswordResetEmailEnum> {
       return Firebase.auth.sendPasswordResetEmail(email)
-      .then(() => {
-        return SendPasswordResetEmailEnum.Success;
-      })
-      .catch((error) => {
-        return error.code as SendPasswordResetEmailEnum;
-      });
+        .then(() => {
+          return SendPasswordResetEmailEnum.Success;
+        })
+        .catch((error) => {
+          return error.code as SendPasswordResetEmailEnum;
+        });
     },
     currentUser({ commit }) {
       const user = Firebase.auth.currentUser;
       commit('UPDATE_USER', user);
       commit('UPDATE_IS_CONNECT', !!user);
     },
-    async addGame({commit, getters}, gameModel: GameModel): Promise<boolean> {
+    async addGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
       gameModel.userId = getters.user ? getters.user.uid : null;
       gameModel.date = Firebase.firestore.Timestamp.now();
 
-      return Firebase.db.collection('game').add(gameModel.toPlan())
-      .then((docRef) => {
-        gameModel.id = docRef.id;
-        commit('UPDATE_GAME', gameModel);
-        return true;
-      })
-      .catch((error) => {
+      return Firebase.db.collection('game').add(gameModel.toAddGame())
+        .then((docRef) => {
+          gameModel.id = docRef.id;
+          commit('UPDATE_GAME', gameModel);
+          return true;
+        })
+        .catch((error) => {
           return false;
-      });
+        });
     },
-    async setGame({commit, getters}, gameModel: GameModel): Promise<boolean> {
+    async setGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
       const game: GameModel = getters.game;
-      game.turnNumber =  gameModel.turnNumber;
+      game.turnNumber = gameModel.turnNumber;
       game.winner = gameModel.winner;
 
-      return Firebase.db.collection('game').doc(game.id).set(game.toPlan())
-      .then(() => {
-        commit('UPDATE_GAME', game);
-        return true;
-      })
-      .catch((error) => {
+      return Firebase.db.collection('game').doc(game.id).set(game.toSetGame())
+        .then(() => {
+          commit('UPDATE_GAME', game);
+          return true;
+        })
+        .catch((error) => {
           return false;
-      });
+        });
     },
-    addTurnGame({commit, getters}, turnGameModel: TurnGameModel) {
+    async addTurnGame({ commit, getters }, turnGameModel: TurnGameModel): Promise<boolean> {
       turnGameModel.userId = getters.user ? getters.user.uid : null;
       turnGameModel.date = Firebase.firestore.Timestamp.now();
       turnGameModel.gameId = getters.game.id;
 
-      Firebase.db.collection('turnGame').add(turnGameModel.toPlan())
-      .then((docRef) => {
-        turnGameModel.id = docRef.id;
-      })
-      .catch((error) => {
-          console.error("Error adding document: ", error);
-      });
+      return Firebase.db.collection('turnGame').add(turnGameModel.addTurnGame())
+        .then((docRef) => {
+          return true;
+        })
+        .catch((error) => {
+          return false;
+        });
     },
   },
   getters: {

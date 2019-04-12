@@ -7,11 +7,13 @@ export class TurnGameModel {
 
   public turn!: 'o' | 'x';
 
+  public place!: number;
+
   public date!: firebase.firestore.Timestamp;
 
   public userId!: string;
 
-  public toPlan() {
-    return { date: this.date, gameId: this.gameId, turnNumber: this.turnNumber,  turn: this.turn };
+  public addTurnGame() {
+    return { date: this.date, gameId: this.gameId, turnNumber: this.turnNumber,  turn: this.turn, place: this.place };
   }
 }
