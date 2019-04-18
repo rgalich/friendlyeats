@@ -202,6 +202,8 @@ export default class Home extends Vue {
 
     item.value = this.turn;
 
+    await this.saveGame(item.id);
+
     this.turnNumber++;
 
     if (
@@ -210,8 +212,6 @@ export default class Home extends Vue {
     ) {
       return;
     }
-
-    await this.saveGame(item.id);
 
     setTimeout(() => {
       this.autoPlay();
@@ -229,15 +229,13 @@ export default class Home extends Vue {
       return;
     }
 
-    const place = Math.floor(Math.random() * emptyBoxList.length);
+    const place =  emptyBoxList[ Math.floor(Math.random() * emptyBoxList.length) ];
 
-    emptyBoxList[
-      place
-    ].value = this.turn;
+    place.value = this.turn;
+
+    await this.saveGame(place.id);
 
     this.turnNumber++;
-
-    await this.saveGame(place);
   }
 
   private removePart(withScore: boolean = false) {
@@ -258,14 +256,14 @@ export default class Home extends Vue {
   }
 
   private async saveGame(place: number) {
-    if (this.turnNumber === 1) {
+    if (this.turnNumber === 0) {
       const gameModel = new GameModel();
       gameModel.isMultiPlayer = this.isMultiPlayer;
       await this.addGame(gameModel);
     }
 
     const turnGameModel = new TurnGameModel();
-    turnGameModel.turnNumber = this.turnNumber;
+    turnGameModel.turnNumber = this.turnNumber + 1;
     turnGameModel.turn = this.turn;
     turnGameModel.place = place;
     await this.addTurnGame(turnGameModel);

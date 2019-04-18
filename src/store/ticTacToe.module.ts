@@ -17,46 +17,52 @@ const getters: GetterTree<TicTacToeState, TicTacToeState> = {
 };
 
 const actions: ActionTree<TicTacToeState, TicTacToeState> = {
-  async addGame({commit, getters}, gameModel: GameModel): Promise<boolean> {
+  async addGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
+    if (!getters.isConnect) { return false; }
+
     gameModel.userId = getters.user ? getters.user.uid : null;
     gameModel.date = Firebase.firestore.Timestamp.now();
 
-    return Firebase.db.collection('game').add(gameModel.toPlan())
-    .then((docRef) => {
-      gameModel.id = docRef.id;
-      commit('UPDATE_GAME', gameModel);
-      return true;
-    })
-    .catch((error) => {
+    return Firebase.db.collection('game').add(gameModel.toAddGame())
+      .then((docRef) => {
+        gameModel.id = docRef.id;
+        commit('UPDATE_GAME', gameModel);
+        return true;
+      })
+      .catch((error) => {
         return false;
-    });
+      });
   },
-  async setGame({commit, getters}, gameModel: GameModel): Promise<boolean> {
+  async setGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
+    if (!getters.isConnect) { return false; }
+
     const game: GameModel = getters.game;
-    game.turnNumber =  gameModel.turnNumber;
+    game.turnNumber = gameModel.turnNumber;
     game.winner = gameModel.winner;
 
-    return Firebase.db.collection('game').doc(game.id).set(game.toPlan())
-    .then(() => {
-      commit('UPDATE_GAME', game);
-      return true;
-    })
-    .catch((error) => {
+    return Firebase.db.collection('game').doc(game.id).update(game.toSetGame())
+      .then(() => {
+        commit('UPDATE_GAME', game);
+        return true;
+      })
+      .catch((error) => {
         return false;
-    });
+      });
   },
-  addTurnGame({ getters }, turnGameModel: TurnGameModel) {
+  async addTurnGame({ commit, getters }, turnGameModel: TurnGameModel): Promise<boolean> {
+    if (!getters.isConnect) { return false; }
+
     turnGameModel.userId = getters.user ? getters.user.uid : null;
     turnGameModel.date = Firebase.firestore.Timestamp.now();
     turnGameModel.gameId = getters.game.id;
 
-    Firebase.db.collection('turnGame').add(turnGameModel.toPlan())
-    .then((docRef) => {
-      turnGameModel.id = docRef.id;
-    })
-    .catch((error) => {
-        console.error("Error adding document: ", error);
-    });
+    return Firebase.db.collection('turnGame').add(turnGameModel.addTurnGame())
+      .then((docRef) => {
+        return true;
+      })
+      .catch((error) => {
+        return false;
+      });
   },
 };
 

@@ -15,6 +15,11 @@ const router = new Router({
         path: '',
         name: 'home',
         component: () => import('./views/Home.vue'),
+      },
+      {
+        path: 'gameList',
+        name: 'gameList',
+        component: () => import('./views/GameList.vue'),
       }],
     },
     {
