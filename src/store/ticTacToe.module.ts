@@ -6,14 +6,17 @@ import { GameModel, TurnGameModel } from '@/models';
 
 interface TicTacToeState {
   game: GameModel;
+  gameList: GameModel[];
 }
 
 const state: TicTacToeState = {
     game: new GameModel(),
+    gameList: [] as GameModel[],
 };
 
 const getters: GetterTree<TicTacToeState, TicTacToeState> = {
   game: (state) => state.game,
+  gameList: (state) => state.gameList,
 };
 
 const actions: ActionTree<TicTacToeState, TicTacToeState> = {
@@ -64,11 +67,28 @@ const actions: ActionTree<TicTacToeState, TicTacToeState> = {
         return false;
       });
   },
+  updateGameList({ commit, getters }, userId: string): void {
+    const userCurrentId: string = getters.user.uid;
+
+    Firebase.db.collection('game').where('userId', '==', userCurrentId)
+    .onSnapshot((snapshot) => {
+      const gameList: GameModel[] = [];
+      snapshot.forEach((doc) => {
+        const game: GameModel = GameModel.toGameList(doc.data());
+        game.id = doc.id;
+        gameList.push(game);
+      });
+      commit('UPDATE_GAME_LIST', gameList);
+    });
+  },
 };
 
 const mutations: MutationTree<TicTacToeState> = {
   UPDATE_GAME(state, payload: GameModel) {
     state.game = payload;
+  },
+  UPDATE_GAME_LIST(state, payload: GameModel[]) {
+    state.gameList = payload;
   },
 };
 

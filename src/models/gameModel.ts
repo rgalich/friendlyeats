@@ -1,4 +1,15 @@
 export class GameModel {
+  public static toGameList(game: GameModel) {
+    const gameModel = new GameModel();
+    gameModel.id = game.id;
+    gameModel.isMultiPlayer = game.isMultiPlayer;
+    gameModel.turnNumber = game.turnNumber;
+    gameModel.winner = game.winner;
+    gameModel.dateReal = game.date.toDate().toLocaleString();
+
+    return gameModel;
+  }
+
   public id!: string;
 
   public turnNumber!: number;
@@ -10,6 +21,8 @@ export class GameModel {
   public isMultiPlayer!: boolean;
 
   public userId!: string;
+
+  public dateReal!: string;
 
   public toAddGame() {
     return {
