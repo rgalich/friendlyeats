@@ -74,7 +74,7 @@ const actions: ActionTree<TicTacToeState, TicTacToeState> = {
     .onSnapshot((snapshot) => {
       const gameList: GameModel[] = [];
       snapshot.forEach((doc) => {
-        const game: GameModel = GameModel.toGameList(doc.data());
+        const game: GameModel = GameModel.toGameList(doc.data() as GameModel);
         game.id = doc.id;
         gameList.push(game);
       });

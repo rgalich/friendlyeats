@@ -1,6 +1,5 @@
-
 <template>
-  <a-table rowKey="id" :columns="columns" :dataSource="gameList" />
+  <a-table bordered rowKey="id" :columns="columns" :dataSource="gameList" :pagination="{ pageSize: 20 }" :scroll="{ y: 600 }"/>
 </template>
 
 <script lang="ts">
@@ -17,17 +16,23 @@ export default class GameList extends Vue {
     await this.updateGameList();
   }
 
-  private columns = [{
-    title: 'Date',
-    dataIndex: 'dateReal',
-    width: 250,
-  }, {
-    title: 'Nombre de tours',
-    dataIndex: 'turnNumber',
-    width: 150,
-  }, {
-    title: 'Gagnant',
-    dataIndex: 'winner',
-  }];
+  private columns = [
+    {
+      title: 'Date',
+      dataIndex: 'dateReal',
+      width: 250,
+      align: 'center'
+    },
+    {
+      title: 'Nombre de tours',
+      dataIndex: 'turnNumber',
+      width: 150,
+      align: 'center',
+    },
+    {
+      title: 'Gagnant',
+      dataIndex: 'winner'
+    }
+  ];
 }
 </script>
