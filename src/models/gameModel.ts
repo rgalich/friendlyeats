@@ -2,10 +2,10 @@ export class GameModel {
   public static toGameList(game: GameModel) {
     const gameModel = new GameModel();
     gameModel.id = game.id;
+    gameModel.date = game.date;
     gameModel.isMultiPlayer = game.isMultiPlayer;
     gameModel.turnNumber = game.turnNumber;
     gameModel.winner = game.winner;
-    gameModel.dateReal = game.date.toDate().toLocaleString();
 
     return gameModel;
   }
@@ -22,7 +22,9 @@ export class GameModel {
 
   public userId!: string;
 
-  public dateReal!: string;
+  get dateReal(): string { return this.date ? this.date.toDate().toLocaleString() : ''; }
+
+  get isFinished(): boolean { return this.turnNumber === 9 || !!this.winner; }
 
   public toAddGame() {
     return {

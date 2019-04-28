@@ -157,10 +157,6 @@ export default class Home extends Vue {
       this.isWinning = isWinning;
 
       if (this.isWinning) {
-        const gameModel = new GameModel();
-        gameModel.winner = this.turn;
-        gameModel.turnNumber = newVal;
-        await this.setGame(gameModel);
         switch (this.turn) {
           case 'o': {
             this.winO++;
@@ -176,6 +172,10 @@ export default class Home extends Vue {
       }
 
       if (this.isWinning || this.turnNumber === this.turnMax) {
+        const gameModel = new GameModel();
+        gameModel.winner = this.turn;
+        gameModel.turnNumber = newVal;
+        await this.setGame(gameModel);
         setTimeout(() => {
           this.removePart();
         }, 1000);

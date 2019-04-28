@@ -3,6 +3,7 @@
 import { MutationTree, ActionTree, GetterTree } from 'vuex';
 import Firebase from '@/firebaseConfig';
 import { GameModel, TurnGameModel } from '@/models';
+import { firestore } from 'firebase';
 
 interface TicTacToeState {
   game: GameModel;
@@ -23,18 +24,27 @@ const actions: ActionTree<TicTacToeState, TicTacToeState> = {
   async addGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
     if (!getters.isConnect) { return false; }
 
-    gameModel.userId = getters.user ? getters.user.uid : null;
+    const userUid = getters.user.uid!;
+
+    gameModel.userId = userUid;
     gameModel.date = Firebase.firestore.Timestamp.now();
 
-    return Firebase.db.collection('game').add(gameModel.toAddGame())
-      .then((docRef) => {
-        gameModel.id = docRef.id;
-        commit('UPDATE_GAME', gameModel);
-        return true;
-      })
-      .catch((error) => {
-        return false;
-      });
+    const increment = firestore.FieldValue.increment(1);
+    const userDoc =  Firebase.db.collection('user').doc(userUid);
+    const gameRef = Firebase.db.collection('game').doc();
+
+    const batch = Firebase.db.batch();
+    batch.update(userDoc, { gameNumber: increment });
+    batch.set(gameRef, gameModel.toAddGame());
+    return batch.commit()
+            .then(() => {
+              gameModel.id = gameRef.id;
+              commit('UPDATE_GAME', gameModel);
+              return true;
+            })
+            .catch((error: any) => {
+              return false;
+            });
   },
   async setGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
     if (!getters.isConnect) { return false; }
@@ -70,8 +80,8 @@ const actions: ActionTree<TicTacToeState, TicTacToeState> = {
   updateGameList({ commit, getters }, userId: string): void {
     const userCurrentId: string = getters.user.uid;
 
-    Firebase.db.collection('game').where('userId', '==', userCurrentId)
-    .onSnapshot((snapshot) => {
+    Firebase.db.collection('game').where('userId', '==', userCurrentId).orderBy('date', 'desc').get()
+    .then((snapshot) => {
       const gameList: GameModel[] = [];
       snapshot.forEach((doc) => {
         const game: GameModel = GameModel.toGameList(doc.data() as GameModel);

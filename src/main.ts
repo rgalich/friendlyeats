@@ -21,6 +21,8 @@ import {
   Alert,
   Avatar,
   Divider,
+  Tooltip,
+  Tag,
 } from 'ant-design-vue';
 
 Vue.component(Button.name, Button);
@@ -42,6 +44,8 @@ Vue.component(Menu.Item.name, Menu.Item);
 Vue.component(Alert.name, Alert);
 Vue.component(Avatar.name, Avatar);
 Vue.component(Divider.name, Divider);
+Vue.component(Tooltip.name, Tooltip);
+Vue.component(Tag.name, Tag);
 
 Vue.prototype.$message = message;
 

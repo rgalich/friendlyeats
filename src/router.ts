@@ -20,6 +20,13 @@ const router = new Router({
         path: 'gameList',
         name: 'gameList',
         component: () => import('./views/GameList.vue'),
+        beforeEnter: (to, from, next) => {
+          if (!store.getters.isConnect) {
+            next({ name: 'home' });
+          } else {
+            next();
+          }
+        }
       }],
     },
     {

@@ -1,3 +1,4 @@
+import { UserModel } from './../models/userModel';
 // tslint:disable:no-shadowed-variable
 
 import { MutationTree, ActionTree, GetterTree } from 'vuex';
@@ -38,7 +39,9 @@ const actions: ActionTree<AuthState, any> = {
       userWithEmailAndPasswordModel.email,
       userWithEmailAndPasswordModel.password,
     )
-      .then(() => {
+      .then((UserCredential) => {
+        const user = new UserModel();
+        Firebase.db.collection('user').doc(UserCredential.user!.uid).set(user.toAddUser());
         return CreateUserWithEmailAndPasswordEnum.Success;
       })
       .catch((error) => {
