@@ -3,10 +3,10 @@
     <div class="game">
       <div class="board blink">
         <div
-          v-for="i in ticTacToc"
+          v-for="i in positionList"
           :key="i.id"
           :class="['square', i.positionY, i.positionX]"
-          @click="play(i)"
+          @click="clickPlay(i)"
         >
           <transition name="slide-fade">
             <div v-if="i.value" :class="i.value"></div>
@@ -17,15 +17,15 @@
     <div class="scores p1">
       <p class="player1">
         <span class="p1">Joueur</span>(O)
-        <span class="score">{{ winO }}</span>
+        <span class="score">{{ winner.winO }}</span>
       </p>
       <p class="ties">
         Egalité
-        <span class="score">{{ draw }}</span>
+        <span class="score">{{ winner.draw }}</span>
       </p>
       <p class="player2">
         <span class="p2">{{ isMultiPlayer ? 'Joueur' : 'Ordinateur' }}</span>(X)
-        <span class="score">{{ winX }}</span>
+        <span class="score">{{ winner.winX }}</span>
       </p>
       <div class="swap" @click="isMultiPlayer = !isMultiPlayer">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -48,226 +48,127 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Action } from 'vuex-class';
 import { GameModel } from '../models/gameModel';
 import { TurnGameModel } from '../models/turnGameModel';
+import { PositionModel, WinnerModel } from '../models';
 
 @Component
 export default class Home extends Vue {
-  @Action private addGame!: any;
   @Action private setGame!: any;
   @Action private addTurnGame!: any;
 
-  private ticTacToc = [
-    {
-      id: 1,
-      positionX: 'left',
-      positionY: 'top',
-      value: ''
-    },
-    {
-      id: 2,
-      positionX: null,
-      positionY: 'top',
-      value: ''
-    },
-    {
-      id: 3,
-      positionX: 'right',
-      positionY: 'top',
-      value: ''
-    },
-    {
-      id: 4,
-      positionX: 'left',
-      positionY: null,
-      value: ''
-    },
-    {
-      id: 5,
-      positionX: null,
-      positionY: null,
-      value: ''
-    },
-    {
-      id: 6,
-      positionX: 'right',
-      positionY: null,
-      value: ''
-    },
-    {
-      id: 7,
-      positionX: 'left',
-      positionY: 'bottom',
-      value: ''
-    },
-    {
-      id: 8,
-      positionX: null,
-      positionY: 'bottom',
-      value: ''
-    },
-    {
-      id: 9,
-      positionX: 'right',
-      positionY: 'bottom',
-      value: ''
-    }
-  ];
+  @Getter private positionList!: PositionModel[];
+  @Getter private winningCombinationList!: Array<[number, number, number]>;
+  @Getter private winner!: WinnerModel;
+  @Getter private isMultiPlayer!: boolean;
+  @Getter private turn!: 'o' | 'x';
 
-  private win = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-    [1, 4, 7],
-    [2, 5, 8],
-    [3, 6, 9],
-    [1, 5, 9],
-    [3, 5, 7]
-  ];
+  // @Watch('turnNumber')
+  // private async onTurnNumberChanged(newVal: number) {
+  //   if (newVal) {
+  //     let isWinning = false;
+  //     this.win.forEach(e => {
+  //       const winWithValue = this.ticTacToc
+  //         .filter(f => e.includes(f.id))
+  //         .map(f => f.value)
+  //         .filter((v, i, a) => a.indexOf(v) === i);
 
-  private winX = 0;
+  //       if (winWithValue.length === 1 && !winWithValue.includes('')) {
+  //         isWinning = true;
+  //       }
+  //     });
 
-  private winO = 0;
+  //     this.isWinning = isWinning;
 
-  private draw = 0;
+  //     if (this.isWinning) {
+  //       switch (this.turn) {
+  //         case 'o': {
+  //           this.winO++;
+  //           break;
+  //         }
+  //         case 'x': {
+  //           this.winX++;
+  //           break;
+  //         }
+  //       }
+  //     } else if (this.turnNumber === this.turnMax) {
+  //       this.draw++;
+  //     }
 
-  private turn: 'o' | 'x' = 'o';
+  //     if (this.isWinning || this.turnNumber === this.turnMax) {
+  //       const gameModel = new GameModel();
+  //       gameModel.winner = this.turn;
+  //       gameModel.turnNumber = newVal;
+  //       await this.setGame(gameModel);
+  //       setTimeout(() => {
+  //         this.removePart();
+  //       }, 1000);
+  //       return;
+  //     }
 
-  private turnNumber = 0;
+  //     this.turn = this.turn === 'o' ? 'x' : 'o';
+  //   }
+  // }
 
-  private turnMax = 9;
+  // @Watch('isMultiPlayer')
+  // private onIsMultiPlayerChanged() {
+  //   this.removePart(true);
+  // }
 
-  private isWinning = false;
+  private async clickPlay(position: PositionModel) {
+    position.value = this.turn;
 
-  private isMultiPlayer = false;
-
-  @Watch('turnNumber')
-  private async onTurnNumberChanged(newVal: number) {
-    if (newVal) {
-      let isWinning = false;
-      this.win.forEach(e => {
-        const winWithValue = this.ticTacToc
-          .filter(f => e.includes(f.id))
-          .map(f => f.value)
-          .filter((v, i, a) => a.indexOf(v) === i);
-
-        if (winWithValue.length === 1 && !winWithValue.includes('')) {
-          isWinning = true;
-        }
-      });
-
-      this.isWinning = isWinning;
-
-      if (this.isWinning) {
-        switch (this.turn) {
-          case 'o': {
-            this.winO++;
-            break;
-          }
-          case 'x': {
-            this.winX++;
-            break;
-          }
-        }
-      } else if (this.turnNumber === this.turnMax) {
-        this.draw++;
-      }
-
-      if (this.isWinning || this.turnNumber === this.turnMax) {
-        const gameModel = new GameModel();
-        gameModel.winner = this.turn;
-        gameModel.turnNumber = newVal;
-        await this.setGame(gameModel);
-        setTimeout(() => {
-          this.removePart();
-        }, 1000);
-        return;
-      }
-
-      this.turn = this.turn === 'o' ? 'x' : 'o';
-    }
+    await this.addTurnGame(position.id);
   }
 
-  @Watch('isMultiPlayer')
-  private onIsMultiPlayerChanged() {
-    this.removePart(true);
-  }
+  // private async autoPlay() {
+  //   if (this.isWinning) {
+  //     return;
+  //   }
 
-  private async play(item: any) {
-    if (
-      item.value ||
-      this.isWinning ||
-      (this.turn !== 'o' && !this.isMultiPlayer)
-    ) {
-      return;
-    }
+  //   const emptyBoxList = this.ticTacToc.filter(e => !e.value);
 
-    item.value = this.turn;
+  //   if (!emptyBoxList.length) {
+  //     return;
+  //   }
 
-    await this.saveGame(item.id);
+  //   const place =  emptyBoxList[ Math.floor(Math.random() * emptyBoxList.length) ];
 
-    this.turnNumber++;
+  //   place.value = this.turn;
 
-    if (
-      this.isMultiPlayer ||
-      (this.isWinning && this.turnNumber === this.turnMax)
-    ) {
-      return;
-    }
+  //   await this.saveGame(place.id);
 
-    setTimeout(() => {
-      this.autoPlay();
-    }, 1000);
-  }
+  //   this.turnNumber++;
+  // }
 
-  private async autoPlay() {
-    if (this.isWinning) {
-      return;
-    }
+  // private removePart(withScore: boolean = false) {
+  //   this.ticTacToc.map(e => {
+  //     e.value = '';
+  //   });
+  //   this.turn = 'o';
+  //   this.isWinning = false;
+  //   this.turnNumber = 0;
 
-    const emptyBoxList = this.ticTacToc.filter(e => !e.value);
+  //   if (!withScore) {
+  //     return;
+  //   }
 
-    if (!emptyBoxList.length) {
-      return;
-    }
+  //   this.winX = 0;
+  //   this.winO = 0;
+  //   this.draw = 0;
+  // }
 
-    const place =  emptyBoxList[ Math.floor(Math.random() * emptyBoxList.length) ];
+  // private async saveGame(place: number) {
+  //   if (this.turnNumber === 0) {
+  //     const gameModel = new GameModel();
+  //     gameModel.isMultiPlayer = this.isMultiPlayer;
+  //     await this.addGame(gameModel);
+  //   }
 
-    place.value = this.turn;
-
-    await this.saveGame(place.id);
-
-    this.turnNumber++;
-  }
-
-  private removePart(withScore: boolean = false) {
-    this.ticTacToc.map(e => {
-      e.value = '';
-    });
-    this.turn = 'o';
-    this.isWinning = false;
-    this.turnNumber = 0;
-
-    if (!withScore) {
-      return;
-    }
-
-    this.winX = 0;
-    this.winO = 0;
-    this.draw = 0;
-  }
-
-  private async saveGame(place: number) {
-    if (this.turnNumber === 0) {
-      const gameModel = new GameModel();
-      gameModel.isMultiPlayer = this.isMultiPlayer;
-      await this.addGame(gameModel);
-    }
-
-    const turnGameModel = new TurnGameModel();
-    turnGameModel.turnNumber = this.turnNumber + 1;
-    turnGameModel.turn = this.turn;
-    turnGameModel.place = place;
-    await this.addTurnGame(turnGameModel);
-  }
+  //   const turnGameModel = new TurnGameModel();
+  //   turnGameModel.turnNumber = this.turnNumber + 1;
+  //   turnGameModel.turn = this.turn;
+  //   turnGameModel.place = place;
+  //   await this.addTurnGame(turnGameModel);
+  // }
 }
 </script>
 

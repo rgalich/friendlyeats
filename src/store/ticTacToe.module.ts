@@ -104,16 +104,21 @@ const getters: GetterTree<TicTacToeState, TicTacToeState> = {
   winningCombinationList: (state) => state.winningCombinationList,
   winner: (state) => state.winner,
   turn: (state) => state.turn,
+  turnNumber: (state) => state.turnNumber,
+  turnMax: (state) => state.turnMax,
   isWinning: (state) => state.isWinning,
   isMultiPlayer: (state) => state.isMultiPlayer,
+  isFinish: (state) => state.isWinning || state.turnNumber === state.turnMax,
 };
 
 const actions: ActionTree<TicTacToeState, TicTacToeState> = {
-  async addGame({ commit, getters }, gameModel: GameModel): Promise<boolean> {
+  async addGame({ commit, getters }): Promise<boolean> {
     if (!getters.isConnect) { return false; }
 
     const userUid = getters.user.uid!;
 
+    const gameModel = new GameModel();
+    gameModel.isMultiPlayer = state.isMultiPlayer;
     gameModel.userId = userUid;
     gameModel.date = Firebase.firestore.Timestamp.now();
 
@@ -147,18 +152,28 @@ const actions: ActionTree<TicTacToeState, TicTacToeState> = {
         return true;
       })
       .catch((error) => {
+        debugger;
         return false;
       });
   },
-  async addTurnGame({ commit, getters }, turnGameModel: TurnGameModel): Promise<boolean> {
-    if (!getters.isConnect) { return false; }
+  async addTurnGame({ commit, getters, dispatch }, place: number): Promise<void> {
+    if (!getters.isConnect) { return; }
 
+    if (getters.turnNumber === 0) {
+      await dispatch('addGame');
+    }
+
+    const turnGameModel = new TurnGameModel();
+    turnGameModel.turnNumber = getters.turnNumber + 1;
+    turnGameModel.turn = getters.turn;
+    turnGameModel.place = place;
     turnGameModel.userId = getters.user ? getters.user.uid : null;
     turnGameModel.date = Firebase.firestore.Timestamp.now();
     turnGameModel.gameId = getters.game.id;
 
-    return Firebase.db.collection('turnGame').add(turnGameModel.addTurnGame())
+    Firebase.db.collection('turnGame').add(turnGameModel.addTurnGame())
       .then((docRef) => {
+        commit('UPDATE_TURN_NUMBER', turnGameModel.turnNumber);
         return true;
       })
       .catch((error) => {
@@ -179,6 +194,11 @@ const actions: ActionTree<TicTacToeState, TicTacToeState> = {
       commit('UPDATE_GAME_LIST', gameList);
     });
   },
+  async play({ commit, getters, dispatch }, place: number) {
+    if (getters.isFinish) { return; }
+
+    await dispatch('addTurnGame', place);
+  },
 };
 
 const mutations: MutationTree<TicTacToeState> = {
@@ -187,6 +207,9 @@ const mutations: MutationTree<TicTacToeState> = {
   },
   UPDATE_GAME_LIST(state, payload: GameModel[]) {
     state.gameList = payload;
+  },
+  UPDATE_TURN_NUMBER(state, payload: number) {
+    state.turnNumber = payload;
   },
 };
 
