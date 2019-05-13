@@ -1,5 +1,3 @@
-import RollbarSourceMapPlugin from 'rollbar-sourcemap-webpack-plugin';
-
 module.exports = {
     css: {
       loaderOptions: {
