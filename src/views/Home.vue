@@ -114,9 +114,7 @@ export default class Home extends Vue {
   // }
 
   private async clickPlay(position: PositionModel) {
-    position.value = this.turn;
-
-    await this.addTurnGame(position.id);
+    JSON.parse('invalid json string');
   }
 
   // private async autoPlay() {

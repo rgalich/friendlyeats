@@ -5,24 +5,20 @@ import store from './store';
 
 import 'reflect-metadata';
 
-import Rollbar from 'vue-rollbar';
+import Rollbar from 'rollbar';
 
-Vue.use(Rollbar, {
+const rollbarConfig: Rollbar.Configuration = {
   accessToken: 'a0c2245309fa4864a9c177c6cdf55181',
   captureUncaught: true,
   captureUnhandledRejections: true,
-  enabled: true,
-  environment: 'production',
-  payload: {
-    client: {
-      javascript: {
-        code_version: 'version-1',
-      },
-    },
-  },
-});
+};
 
-JSON.parse('invalid json string');
+const rollbar = Rollbar.init(rollbarConfig);
+
+Vue.config.errorHandler = (err) => {
+  rollbar.error(err);
+  console.log('Exception: ', err);
+};
 
 import {
   Button,
