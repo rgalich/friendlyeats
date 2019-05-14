@@ -12,6 +12,9 @@ const config = {
 
 firebase.initializeApp(config);
 
+const performance = firebase.performance();
+performance.trace('test');
+
 const db = firebase.firestore();
 
 const auth = firebase.auth();
@@ -22,6 +25,7 @@ const firebaseModule = {
     db,
     auth,
     firestore,
+    performance,
 };
 
 export default firebaseModule;

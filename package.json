@@ -10,17 +10,17 @@
   "dependencies": {
     "animate.css": "^3.7.0",
     "ant-design-vue": "^1.3.8",
-    "class-transformer": "^0.2.0",
-    "firebase": "^5.11.1",
-    "firebaseui": "^3.6.0",
+    "class-transformer": "^0.2.2",
+    "firebase": "^6.0.2",
+    "firebaseui": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "rollbar": "^2.6.1",
     "vue": "^2.6.10",
-    "vue-class-component": "^7.0.2",
-    "vue-property-decorator": "^8.1.0",
+    "vue-class-component": "^7.1.0",
+    "vue-property-decorator": "^8.1.1",
     "vue-rollbar": "^1.0.0",
     "vue-router": "^3.0.6",
-    "vuex": "^3.0.1",
+    "vuex": "^3.1.1",
     "vuex-class": "^0.3.2"
   },
   "devDependencies": {
@@ -34,6 +34,6 @@
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.5",
     "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.30.0"
+    "webpack": "^4.31.0"
   }
 }
